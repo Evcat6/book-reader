@@ -1,0 +1,54 @@
+version: '3'
+services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2022-02-18T01-50-10Z
+    volumes:
+      - ./minio:/data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    env_file: ./backend/.env
+    command: minio server /data
+
+  postgres:
+    image: postgres
+    restart: always
+    env_file: ./backend/.env
+    ports:
+      - 5432:5432
+
+  # redis:
+  #   image: redis:6.2-alpine
+  #   restart: always
+  #   ports:
+  #     - 6379:6379
+  #   command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+  #   volumes: 
+  #     - ./redis:/data
+
+  backend:
+    depends_on:
+      - postgres
+      - minio
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: ./backend/.env
+    ports:
+      - 4000:4000
+    environment:
+      - POSTGRES_HOST=postgres
+      - MINIO_ENDPOINT=minio
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file: ./frontend/.env
+    environment:
+      - VITE_APP_URL=http://localhost:8080
+    ports:
+      - 8080:80
+
+
+  

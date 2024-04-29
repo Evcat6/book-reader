@@ -1,8 +1,10 @@
 <template>
-  <Header></Header>
-  <router-view/>
+  <v-layout>
+    <Header />
+    <router-view />
+  </v-layout>
 </template>
 
-<script setup>
-import { Header } from "../components";
+<script setup lang="ts">
+import { Header } from '../components.ts';
 </script>
