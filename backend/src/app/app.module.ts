@@ -7,6 +7,7 @@ import { HttpLoggerMiddleware } from '@/common/middleware';
 import { AppLogger } from '@/common/service';
 import { configModuleValidationSchema } from '@/common/validation-schema/config-module.validation';
 import { UserModule } from '@/user/user.module';
+import { CacheModule, CacheModuleAsyncOptions } from '@nestjs/cache-manager';
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
@@ -28,6 +29,12 @@ import { CloudinaryModule } from 'nestjs-cloudinary';
     CloudinaryModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => configService.get(ConfigKey.CLOUDINARY),
+      inject: [ConfigService],
+    }),
+    CacheModule.registerAsync<CacheModuleAsyncOptions>({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => await configService.get(ConfigKey.REDIS),
       inject: [ConfigService],
     }),
     UserModule,

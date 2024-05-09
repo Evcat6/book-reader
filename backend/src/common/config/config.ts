@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { redisStore } from 'cache-manager-redis-store';
 import { join } from 'path';
 
 export enum ConfigKey {
@@ -6,6 +7,7 @@ export enum ConfigKey {
   MINIO = 'MINIO',
   APP = 'APP',
   CLOUDINARY = 'CLOUDINARY',
+  REDIS = 'REDIS'
 }
 
 export enum Environment {
@@ -22,7 +24,6 @@ const PostgresConfig = registerAs(ConfigKey.POSTGRES, () => ({
   database: process.env.POSTGRES_DB,
   entities: [join(__dirname, '../..', '**', '*.entity.{ts,js}')],
   synchronize: true,
-  // logging: true,
 }));
 
 const MinioConfig = registerAs(ConfigKey.MINIO, () => {
@@ -44,4 +45,17 @@ const CloudinaryConfig = registerAs(ConfigKey.CLOUDINARY, () => ({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 }));
 
-export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig];
+const RedisConfig = registerAs(ConfigKey.REDIS, () => {
+  const store = redisStore({
+    socket: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT),
+    },
+    password: process.env.REDIS_PASSWORD,
+  });
+  return {
+    store: () => store,
+  };
+});
+
+export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig];
