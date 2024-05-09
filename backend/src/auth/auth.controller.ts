@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from '@/common/decorator';
+import { Public, User } from '@/common/decorator';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { UserService } from '@/user/user.service';
 
@@ -30,5 +30,10 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return await this.authService.register(createUserDto);
+  }
+
+  @Post('logout')
+  async logout(@User() user) {
+    await this.authService.logout(user.id);
   }
 }
