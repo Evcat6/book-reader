@@ -16,6 +16,9 @@ const configModuleValidationSchema = Joi.object({
   CLOUDINARY_CLOUDNAME: Joi.string().required(),
   CLOUDINARY_API_KEY: Joi.string().required(),
   CLOUDINARY_API_SECRET: Joi.string().required(),
+  REDIS_HOST: Joi.string().required(),
+  REDIS_PORT: Joi.number().required(),
+  REDIS_PASSWORD: Joi.string().required(),
 });
 
 export { configModuleValidationSchema };

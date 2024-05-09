@@ -1,4 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+// import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { instanceToInstance } from 'class-transformer';
@@ -7,12 +8,15 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entity/user.entity';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { RedisExpirationTime, RedisKeyPrefix } from '@/common/enum';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<UserEntity> {
@@ -40,7 +44,12 @@ export class UserService {
   }
 
   public async findById(id: string) {
+    const userFromCache = await this.cacheManager.get(`${RedisKeyPrefix}:${id}`);
+
+    if(userFromCache) return userFromCache;
+
     const user = await this.findBy({ id });
+    await this.cacheManager.set(`${RedisKeyPrefix.USER_INFO}:${id}`, JSON.stringify(user));
     return instanceToInstance(user);
   }
 
@@ -55,11 +64,14 @@ export class UserService {
       user.username = updateUserDto.username;
     }
 
-    return await this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
+    await this.cacheManager.set(`${RedisKeyPrefix.USER_INFO}:${id}`, JSON.stringify(updatedUser), RedisExpirationTime.ONE_DAY);
+    return updatedUser;
   }
 
   public async delete(id: string): Promise<boolean> {
     const result = await this.usersRepository.delete({ id });
+    await this.cacheManager.del(`${RedisKeyPrefix.USER_INFO}:${id}`);
     return result.affected > 0;
   }
 }
