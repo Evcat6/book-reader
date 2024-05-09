@@ -17,19 +17,20 @@ services:
     ports:
       - 5432:5432
 
-  # redis:
-  #   image: redis:6.2-alpine
-  #   restart: always
-  #   ports:
-  #     - 6379:6379
-  #   command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
-  #   volumes: 
-  #     - ./redis:/data
+  redis:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - ./redis:/data
 
   backend:
     depends_on:
       - postgres
       - minio
+      - redis
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -39,6 +40,7 @@ services:
     environment:
       - POSTGRES_HOST=postgres
       - MINIO_ENDPOINT=minio
+      - REDIS_HOST=redis
 
   frontend:
     build:
