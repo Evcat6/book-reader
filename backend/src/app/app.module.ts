@@ -13,6 +13,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CloudinaryModule } from 'nestjs-cloudinary';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -22,21 +24,23 @@ import { CloudinaryModule } from 'nestjs-cloudinary';
       load: configurations,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => configService.get(ConfigKey.POSTGRES),
       inject: [ConfigService],
     }),
     CloudinaryModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => configService.get(ConfigKey.CLOUDINARY),
       inject: [ConfigService],
     }),
     CacheModule.registerAsync<CacheModuleAsyncOptions>({
       isGlobal: true,
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => await configService.get(ConfigKey.REDIS),
+      useFactory: (configService: ConfigService) => configService.get(ConfigKey.REDIS),
       inject: [ConfigService],
     }),
+    MailerModule.forRootAsync({
+      useFactory: (configService: ConfigService) => configService.get(ConfigKey.MAILER),
+      inject: [ConfigService],
+    }),
+    ScheduleModule.forRoot(),
     UserModule,
     AuthModule,
     BookModule,
