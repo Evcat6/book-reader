@@ -5,6 +5,7 @@ import { UserModule } from '@/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { config } from 'dotenv';
+import { AppLogger } from '@/common/service';
 
 config();
 
@@ -18,6 +19,6 @@ config();
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, AppLogger],
 })
 export class AuthModule {}

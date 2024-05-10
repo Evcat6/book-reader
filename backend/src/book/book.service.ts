@@ -72,7 +72,7 @@ export class BookService {
     }
 
     queryBuilder
-      .loadRelationCountAndMap('book.views', 'books.bookUsersViews', 'views')
+      .loadRelationCountAndMap('book.views', 'books.userViews', 'views')
       .orderBy('books.createdAt', pageOptionsDto.order)
       .where(whereOptions)
       .cache(QUERY_VIEWS_CACHE)
@@ -90,7 +90,7 @@ export class BookService {
     const queryBuilder = this.bookRepository.createQueryBuilder('books');
     const book = await queryBuilder
       .where({ id: bookId })
-      .loadRelationCountAndMap('book.views', 'books.bookUsersViews', 'views')
+      .loadRelationCountAndMap('book.views', 'books.userViews', 'views')
       .leftJoinAndSelect('books.user', 'user')
       .getOne();
     if (!book) {
@@ -113,7 +113,7 @@ export class BookService {
     const queryBuilder = this.bookRepository.createQueryBuilder('books');
     const books = await queryBuilder
       .where({ isPrivate: false })
-      .loadRelationCountAndMap('books.views', 'books.bookUsersViews', 'views')
+      .loadRelationCountAndMap('books.views', 'books.userViews', 'views')
       .addSelect((query) => {
         return query
           .select('COUNT(books_views.usersId)', 'count')
@@ -144,7 +144,7 @@ export class BookService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    book.bookUsersViews.push(user);
+    book.userViews.push(user);
 
     await this.bookRepository.save(book);
   }

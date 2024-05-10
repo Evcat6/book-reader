@@ -19,6 +19,9 @@ const configModuleValidationSchema = Joi.object({
   REDIS_HOST: Joi.string().required(),
   REDIS_PORT: Joi.number().required(),
   REDIS_PASSWORD: Joi.string().required(),
+  GMAIL_HOST: Joi.string().required(),
+  GMAIL_USER: Joi.string().required(),
+  GMAIL_PASSWORD: Joi.string().required(),
 });
 
 export { configModuleValidationSchema };
