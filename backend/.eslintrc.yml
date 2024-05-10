@@ -19,9 +19,6 @@ rules:
     - ignoreRestSiblings: true
   no-console:
     - error
-  max-params:
-    - error
-    - 4
   no-multiple-empty-lines:
     - error
     - max: 1

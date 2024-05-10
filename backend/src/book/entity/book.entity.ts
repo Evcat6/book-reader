@@ -63,17 +63,18 @@ export class BookEntity {
   user: UserEntity;
 
   // Required to calculate views attribute
-  @ManyToMany(() => UserEntity)
+  @ManyToMany(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinTable({ name: 'books_views' })
   @ApiHideProperty()
   @Exclude()
-  bookUsersViews?: UserEntity[];
+  userViews?: UserEntity[];
 
-  @ManyToMany(() => UserEntity)
-  @JoinTable({ name: 'books_savings' })
+  // Required to calculate saves
+  @ManyToMany(() => UserEntity, { onDelete: 'CASCADE' })
+  @JoinTable({ name: 'books_saves' })
   @ApiHideProperty()
   @Exclude()
-  bookUsersSaves?: UserEntity[];
+  userSaves?: UserEntity[];
 
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'views' })
   views: number;

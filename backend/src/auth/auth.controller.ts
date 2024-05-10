@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public, User } from '@/common/decorator';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
@@ -30,6 +30,18 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     return await this.authService.register(createUserDto);
+  }
+
+  @Public()
+  @Post('verify/:token')
+  @HttpCode(200)
+  async verify(@Param('token') token: string) {
+    return await this.authService.verify(token);
+  }
+
+  @Post('new-verification-link')
+  async createVerificationToken(@User() user) {
+    return await this.authService.createNewVerificationLink(user.id);
   }
 
   @Post('logout')

@@ -1,3 +1,4 @@
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { registerAs } from '@nestjs/config';
 import { redisStore } from 'cache-manager-redis-store';
 import { join } from 'path';
@@ -7,7 +8,8 @@ export enum ConfigKey {
   MINIO = 'MINIO',
   APP = 'APP',
   CLOUDINARY = 'CLOUDINARY',
-  REDIS = 'REDIS'
+  REDIS = 'REDIS',
+  MAILER = 'MAILER'
 }
 
 export enum Environment {
@@ -58,4 +60,23 @@ const RedisConfig = registerAs(ConfigKey.REDIS, () => {
   };
 });
 
-export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig];
+const MailerConfig = registerAs(ConfigKey.MAILER, () => ({
+  transport: {
+    host: process.env.GMAIL_HOST,
+    secure: true,
+    port: 465,
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASSWORD
+    },
+  },
+  template: {
+    dir: process.cwd() + '/dist/templates/',
+    adapter: new HandlebarsAdapter(),
+    options: {
+      strict: true
+    }
+  }
+}));
+
+export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig, MailerConfig];
