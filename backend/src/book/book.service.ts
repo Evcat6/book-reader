@@ -29,11 +29,10 @@ export class BookService {
   public async create(userId: string, { name, file, isPrivate }: CreateBookDto) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['books'],
     });
     const { fileName } = await this.minioClientService.upload(file, 'books');
     const previewImage = await this.extractFirstPageFromPdf(file);
-
+    
     const uploadRes: UploadApiResponse = await new Promise((resolve) => {
       this.cloudinaryService.cloudinary.uploader
         .upload_stream((_error, uploadResult) => {
