@@ -9,7 +9,8 @@ export enum ConfigKey {
   APP = 'APP',
   CLOUDINARY = 'CLOUDINARY',
   REDIS = 'REDIS',
-  MAILER = 'MAILER'
+  MAILER = 'MAILER',
+  BULL_MQ = 'BULL_MQ'
 }
 
 export enum Environment {
@@ -79,4 +80,12 @@ const MailerConfig = registerAs(ConfigKey.MAILER, () => ({
   }
 }));
 
-export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig, MailerConfig];
+const BullMqConfig = registerAs(ConfigKey.BULL_MQ, () => ({
+  redis: {
+    connection: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT),
+    password: process.env.REDIS_PASSWORD,
+  }
+}));
+
+export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig, MailerConfig, BullMqConfig];

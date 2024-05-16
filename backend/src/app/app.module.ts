@@ -15,6 +15,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CloudinaryModule } from 'nestjs-cloudinary';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
   imports: [
@@ -38,6 +39,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService) => configService.get(ConfigKey.MAILER),
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      useFactory: (configService: ConfigService) => configService.get(ConfigKey.BULL_MQ),
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
