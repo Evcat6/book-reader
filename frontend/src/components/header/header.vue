@@ -55,10 +55,12 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user.store';
-import { useRouter, useRoute } from 'vue-router';
-import { AppRoute } from '../../common/enums/app-route.enum';
+import { useRoute,useRouter } from 'vue-router';
+
 import { BooksTabsValue } from '@/common/enums';
+import { useUserStore } from '@/stores/user.store';
+
+import { AppRoute } from '../../common/enums/app-route.enum';
 
 const router = useRouter();
 const route = useRoute();

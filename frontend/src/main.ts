@@ -1,14 +1,16 @@
+import 'vuetify/dist/vuetify.min.css';
+import '@mdi/font/css/materialdesignicons.css';
+
+// eslint-disable-next-line import/no-named-as-default
+import Notifications from '@kyvg/vue3-notification';
+import { createPinia } from 'pinia';
 import { createApp } from 'vue';
-import App from './App.vue';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-import 'vuetify/dist/vuetify.min.css';
-import '@mdi/font/css/materialdesignicons.css';
-import Notifications from '@kyvg/vue3-notification';
 
+import App from './app.vue';
 import { router } from './routers';
-import { createPinia } from 'pinia';
 
 const vuetify = createVuetify({
   components,

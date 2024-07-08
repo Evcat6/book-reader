@@ -1,9 +1,9 @@
-import { EnvironmentConfig } from '@/common/types/environment-config.type';
+import type { EnvironmentConfig } from '@/common/types/environment-config.type';
 
 class ConfigService {
-  constructor(private environment: EnvironmentConfig) {}
+  public constructor(private environment: EnvironmentConfig) {}
 
-  public getApiUrl() {
+  public getApiUrl(): string {
     return this.environment.VITE_API_URL;
   }
 }

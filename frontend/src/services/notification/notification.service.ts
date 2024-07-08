@@ -1,23 +1,23 @@
-import { notify } from '@kyvg/vue3-notification';
+import type { notify } from '@kyvg/vue3-notification';
 
 class NotificationService {
-  constructor(private notification: typeof notify) {}
+  public constructor(private notification: typeof notify) {}
 
-  public info(text: string) {
+  public info(text: string): void {
     this.notification({
       type: 'info',
       text,
     });
   }
 
-  public success(text: string) {
+  public success(text: string): void {
     this.notification({
       type: 'success',
       text,
     });
   }
 
-  public error(text: string) {
+  public error(text: string): void {
     this.notification({
       type: 'error',
       text,

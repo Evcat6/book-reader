@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia';
-import { booksApiService } from '../services';
+
+import type { LoadBookResponseDto } from '@/common/dto';
 import { DataStatus } from '@/common/enums';
-import { LoadBookResponseDto } from '@/common/dto';
+
+import { booksApiService } from '../services';
 
 type State = {
   dataStatus: DataStatus;
-  book: LoadBookResponseDto | null;
+  book: LoadBookResponseDto;
 };
 
 const defaultState: State = {
@@ -17,10 +19,11 @@ const defaultState: State = {
     updatedAt: '',
     createdAt: '',
     uploadedBy: '',
-    views: NaN,
+    views: Number.NaN,
     isPrivate: false,
     accessLink: '',
-    size: NaN,
+    size: Number.NaN,
+    addedToFavorites: Number.NaN,
   },
 };
 

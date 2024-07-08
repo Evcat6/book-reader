@@ -1,7 +1,10 @@
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import path from 'node:path';
+
 import { registerAs } from '@nestjs/config';
+import { Transport } from '@nestjs/microservices';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import type { RedisStore } from 'cache-manager-redis-store';
 import { redisStore } from 'cache-manager-redis-store';
-import { join } from 'path';
 
 export enum ConfigKey {
   POSTGRES = 'POSTGRES',
@@ -10,9 +13,8 @@ export enum ConfigKey {
   CLOUDINARY = 'CLOUDINARY',
   REDIS = 'REDIS',
   MAILER = 'MAILER',
-  BULL_MQ = 'BULL_MQ'
+  KAFKA = 'KAFKA',
 }
-
 export enum Environment {
   PRODUCTION = 'production',
   DEVELOPMENT = 'development',
@@ -25,16 +27,16 @@ const PostgresConfig = registerAs(ConfigKey.POSTGRES, () => ({
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [join(__dirname, '../..', '**', '*.entity.{ts,js}')],
+  entities: [path.join(__dirname, '../..', '**', '*.entity.{ts,js}')],
   synchronize: true,
 }));
 
 const MinioConfig = registerAs(ConfigKey.MINIO, () => {
-  const environment = process.env.NODE_ENV;
+  const environment = process.env.NODE_ENV as Environment;
 
   return {
     endPoint: process.env.MINIO_ENDPOINT,
-    port: parseInt(process.env.MINIO_PORT),
+    port: Number.parseInt(process.env.MINIO_PORT),
     useSSL: environment === Environment.PRODUCTION,
     accessKey: process.env.MINIO_ROOT_USER,
     secretKey: process.env.MINIO_ROOT_PASSWORD,
@@ -52,12 +54,12 @@ const RedisConfig = registerAs(ConfigKey.REDIS, () => {
   const store = redisStore({
     socket: {
       host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT),
+      port: Number.parseInt(process.env.REDIS_PORT),
     },
     password: process.env.REDIS_PASSWORD,
   });
   return {
-    store: () => store,
+    store: (): Promise<RedisStore> => store,
   };
 });
 
@@ -68,24 +70,39 @@ const MailerConfig = registerAs(ConfigKey.MAILER, () => ({
     port: 465,
     auth: {
       user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_PASSWORD
+      pass: process.env.GMAIL_PASSWORD,
     },
   },
   template: {
     dir: process.cwd() + '/dist/templates/',
     adapter: new HandlebarsAdapter(),
     options: {
-      strict: true
-    }
-  }
+      strict: true,
+    },
+  },
 }));
 
-const BullMqConfig = registerAs(ConfigKey.BULL_MQ, () => ({
-  redis: {
-    connection: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT),
-    password: process.env.REDIS_PASSWORD,
-  }
+const KafkaConfig = registerAs(ConfigKey.KAFKA, () => ({}));
+
+const KafkaClientConfig = registerAs(ConfigKey.KAFKA, () => ({
+  transport: Transport.KAFKA,
+  options: {
+    client: {
+      clientId: 'nestjs',
+      brokers: [process.env.KAFKA_HOST],
+    },
+    consumer: {
+      groupId: 'nestjs-consumer',
+    },
+  },
 }));
 
-export const configurations = [PostgresConfig, MinioConfig, CloudinaryConfig, RedisConfig, MailerConfig, BullMqConfig];
+export const configurations = [
+  PostgresConfig,
+  MinioConfig,
+  CloudinaryConfig,
+  RedisConfig,
+  MailerConfig,
+  KafkaConfig,
+  KafkaClientConfig,
+];

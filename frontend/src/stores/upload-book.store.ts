@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
-import { notificationService, booksApiService } from '../services';
+
 import { DataStatus } from '@/common/enums';
-import { HttpError } from '@/common/exceptions/http-error.exception';
+import type { HttpError } from '@/common/exceptions/http-error.exception';
+
+import { booksApiService,notificationService } from '../services';
 
 type State = {
   dataStatus: DataStatus;

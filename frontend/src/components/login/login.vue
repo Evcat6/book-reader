@@ -11,7 +11,7 @@
         v-model="email"
         type="email"
         label="Email"
-        :bind="emailAttrs"
+        :bind="emailAttributes"
         :hint="errors.email"
         :error="Boolean(errors.email)"
         persistent-hint
@@ -22,7 +22,7 @@
         type="password"
         :hint="errors.password"
         :error="Boolean(errors.password)"
-        :bind="passwordAttrs"
+        :bind="passwordAttributes"
         label="password"
         persistent-hint
       />
@@ -48,11 +48,12 @@
 </template>
 
 <script setup lang="ts">
-import { AppRoute } from '@/common/enums';
-import { useAuthStore } from '@/stores/auth.store';
-import { useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
+import { useRouter } from 'vue-router';
+
+import { AppRoute } from '@/common/enums';
 import { LoginValidationSchema } from '@/common/validation-schemas';
+import { useAuthStore } from '@/stores/auth.store';
 
 const { errors, handleSubmit, defineField } = useForm({
   initialValues: {
@@ -62,8 +63,8 @@ const { errors, handleSubmit, defineField } = useForm({
   validationSchema: LoginValidationSchema,
 });
 
-const [email, emailAttrs] = defineField('email');
-const [password, passwordAttrs] = defineField('password');
+const [email, emailAttributes] = defineField('email');
+const [password, passwordAttributes] = defineField('password');
 
 const authStore = useAuthStore();
 
@@ -71,6 +72,6 @@ const router = useRouter();
 
 const onSubmit = handleSubmit(async (values) => {
   await authStore.login(values);
-  router.push(AppRoute.UPLOAD_BOOK);
+  void router.push(AppRoute.UPLOAD_BOOK);
 });
 </script>

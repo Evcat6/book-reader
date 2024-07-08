@@ -1,13 +1,18 @@
+import path from 'node:path';
+
+import type { INestApplication } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { MicroserviceOptions } from '@nestjs/microservices';
+import { Transport } from '@nestjs/microservices';
+import type { NestExpressApplication } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { AppModule } from './app/app.module';
 import { APP_GLOBAL_PREFIX } from './common/constant';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { INestApplication, Logger } from '@nestjs/common';
-import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
 
-function setupDocs(app: INestApplication) {
-  const docConfig = new DocumentBuilder()
+function setupDocumentation(app: INestApplication): void {
+  const documentConfig = new DocumentBuilder()
     .setTitle('Book Reader API')
     .setDescription('Book Reader API - list of available endpoints')
     .setVersion('1.0')
@@ -20,24 +25,35 @@ function setupDocs(app: INestApplication) {
         description: 'Enter JWT token',
         in: 'header',
       },
-      'JWT-auth',
+      'JWT-auth'
     )
     .build();
-  const document = SwaggerModule.createDocument(app, docConfig);
+  const document = SwaggerModule.createDocument(app, documentConfig);
 
   SwaggerModule.setup('docs', app, document);
 }
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.setGlobalPrefix(APP_GLOBAL_PREFIX);
 
   app.enableCors({ origin: '*' });
 
-  app.useStaticAssets(join(__dirname, 'uploads'), { prefix: '/uploads' });
+  app.useStaticAssets(path.join(__dirname, 'uploads'), { prefix: '/uploads' });
 
-  setupDocs(app);
+  setupDocumentation(app);
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: [process.env.KAFKA_HOST],
+      },
+    },
+  });
+
+  await app.startAllMicroservices();
 
   await app.listen(process.env.PORT);
 
@@ -45,4 +61,5 @@ async function bootstrap() {
 
   logger.log(`Server running on port ${process.env.PORT}`);
 }
-bootstrap();
+
+void bootstrap();

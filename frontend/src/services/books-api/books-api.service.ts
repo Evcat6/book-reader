@@ -1,14 +1,15 @@
-import { HttpMethod } from '@/common/enums/http-method.enum';
-import { HttpService } from '../http/http.service';
+import type { LoadBooksResponseDto } from '@/common/dto';
+import type { LoadBookResponseDto } from '@/common/dto/load-book-response.dto';
+import type { LoadPaginatedResponse } from '@/common/dto/load-paginated-response.dto';
 import { ContentType } from '@/common/enums/content-type.enum';
-import { LoadBooksResponseDto } from '@/common/dto';
-import { LoadPaginatedResponse } from '@/common/dto/load-paginated-response.dto';
-import { LoadBookResponseDto } from '@/common/dto/load-book-response.dto';
+import { HttpMethod } from '@/common/enums/http-method.enum';
+
+import type { HttpService } from '../http/http.service';
 
 class BooksApiService {
-  constructor(private httpService: HttpService, private baseEndpoint: string) {}
+  public constructor(private httpService: HttpService, private baseEndpoint: string) {}
 
-  public async create(payload: FormData) {
+  public async create(payload: FormData): Promise<void> {
     await this.httpService.load(`${this.baseEndpoint}`, {
       method: HttpMethod.POST,
       payload,
@@ -16,7 +17,12 @@ class BooksApiService {
     });
   }
 
-  public async loadMany(query: { userOwned: boolean; page: number; searchQuery: string; order: 'ASC' | 'DESC' }) {
+  public async loadMany(query: {
+    userOwned?: boolean;
+    page: number;
+    searchQuery: string;
+    order: 'ASC' | 'DESC';
+  }): Promise<LoadPaginatedResponse<LoadBooksResponseDto[]>> {
     const response = await this.httpService.load(`${this.baseEndpoint}`, {
       method: HttpMethod.GET,
       contentType: ContentType.APPLICATION_JSON,
@@ -25,7 +31,7 @@ class BooksApiService {
     return await response.json<LoadPaginatedResponse<LoadBooksResponseDto[]>>();
   }
 
-  public async loadPopular() {
+  public async loadPopular(): Promise<LoadBooksResponseDto[]> {
     const response = await this.httpService.load(`${this.baseEndpoint}/popular`, {
       method: HttpMethod.GET,
       contentType: ContentType.APPLICATION_JSON,
@@ -33,7 +39,7 @@ class BooksApiService {
     return await response.json<LoadBooksResponseDto[]>();
   }
 
-  public async loadById(id: string) {
+  public async loadById(id: string): Promise<LoadBookResponseDto> {
     const response = await this.httpService.load(`${this.baseEndpoint}/${id}`, {
       method: HttpMethod.GET,
       contentType: ContentType.APPLICATION_JSON,
@@ -41,7 +47,7 @@ class BooksApiService {
     return await response.json<LoadBookResponseDto>();
   }
 
-  public async sendView(id: string) {
+  public async sendView(id: string): Promise<void> {
     await this.httpService.load(`${this.baseEndpoint}/send-view/${id}`, {
       method: HttpMethod.POST,
       contentType: ContentType.APPLICATION_JSON,

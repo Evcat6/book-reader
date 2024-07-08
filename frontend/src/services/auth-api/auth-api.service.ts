@@ -1,11 +1,12 @@
-import { HttpService } from '../http/http.service';
-import { RegisterUserReqDto, LoginUserReqDto, AuthUserResDto } from '@/common/dto';
+import type { AuthUserResDto, LoginUserReqDto, RegisterUserReqDto } from '@/common/dto';
 import { HttpMethod } from '@/common/enums/http-method.enum';
 
-class AuthApiService {
-  constructor(private httpService: HttpService, private baseEndpoint: string) {}
+import type { HttpService } from '../http/http.service';
 
-  public async login(payload: LoginUserReqDto) {
+class AuthApiService {
+  public constructor(private httpService: HttpService, private baseEndpoint: string) {}
+
+  public async login(payload: LoginUserReqDto): Promise<AuthUserResDto> {
     const response = await this.httpService.load(`${this.baseEndpoint}/login`, {
       method: HttpMethod.POST,
       payload: JSON.stringify(payload),
@@ -14,7 +15,7 @@ class AuthApiService {
     return await response.json<AuthUserResDto>();
   }
 
-  public async register(payload: RegisterUserReqDto) {
+  public async register(payload: RegisterUserReqDto): Promise<AuthUserResDto> {
     const response = await this.httpService.load(`${this.baseEndpoint}/register`, {
       method: HttpMethod.POST,
       payload: JSON.stringify(payload),

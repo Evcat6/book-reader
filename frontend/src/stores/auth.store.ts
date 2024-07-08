@@ -1,10 +1,11 @@
-import { LoginUserReqDto, RegisterUserReqDto } from '@/common/dto';
 import { defineStore } from 'pinia';
-import { authApiService, notificationService } from '../services';
-import { storageService } from '../services';
-import { StorageKey } from '@/common/enums/storage-key.enum';
+
+import type { LoginUserReqDto, RegisterUserReqDto } from '@/common/dto';
 import { DataStatus } from '@/common/enums';
-import { HttpError } from '@/common/exceptions/http-error.exception';
+import { StorageKey } from '@/common/enums/storage-key.enum';
+import type { HttpError } from '@/common/exceptions/http-error.exception';
+
+import { authApiService, notificationService , storageService } from '../services';
 
 type State = {
   dataStatus: DataStatus;

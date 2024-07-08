@@ -1,49 +1,65 @@
-import { Exclude } from 'class-transformer';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany, ManyToMany } from 'typeorm';
-
-import { CreateUserDto } from '../dto/create-user.dto';
-import { BookEntity } from '@/book/entity/book.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+import { BookEntity } from '@/book/entity/book.entity';
+
+import type { CreateUserDto } from '../dto/create-user.dto';
 
 @Entity({ name: 'users' })
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  public id: string;
 
   @Column({ unique: true })
-  email: string;
+  public email: string;
 
   @Column()
-  username: string;
+  public username: string;
 
   @Exclude()
   @ApiHideProperty()
   @Column({ nullable: true })
-  password: string;
+  public password: string;
 
   @Column({ nullable: false, default: false })
-  verified: boolean;
+  public verified: boolean;
 
   @CreateDateColumn({ type: 'timestamp', name: 'createdAt' })
-  createdAt: Date;
+  public createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  public updatedAt: Date;
 
   @ApiHideProperty()
   @OneToMany(() => BookEntity, (book) => book.user)
-  books: BookEntity[];
+  public books: BookEntity[];
 
   @ApiHideProperty()
-  @ManyToMany(() => UserEntity, user => user.bookViews, { onDelete: 'CASCADE' })
-  bookViews: UserEntity[];
+  @ManyToMany(() => BookEntity)
+  @JoinTable({ name: 'books_views' })
+  @Exclude()
+  public bookViews?: BookEntity[];
 
   @ApiHideProperty()
-  @ManyToMany(() => UserEntity, user => user.bookSaves, { onDelete: 'CASCADE' })
-  bookSaves: UserEntity[];
+  @ManyToMany(() => BookEntity)
+  @JoinTable({ name: 'books_added_to_favorites' })
+  @Exclude()
+  public bookSaves?: BookEntity[];
 
-  constructor(user?: CreateUserDto) {
-    if (!user) return;
+  public constructor(user?: CreateUserDto) {
+    if (!user) {
+      return;
+    }
     this.email = user.email;
     this.username = user.username;
   }

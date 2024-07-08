@@ -1,16 +1,17 @@
-import { BufferedFile } from '@/minio-client/model';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsString } from 'class-validator';
+
+import { BufferedFile } from '@/minio-client/model';
 
 export class CreateBookDto {
   @ApiProperty()
   @IsString()
-  readonly name: string;
+  public readonly name: string;
 
   @ApiProperty()
-  readonly file: BufferedFile;
+  public readonly file: BufferedFile;
 
   @ApiProperty()
   @IsBoolean()
-  readonly isPrivate: boolean;
+  public readonly isPrivate: boolean;
 }

@@ -4,5 +4,5 @@ import { IsJWT } from 'class-validator';
 export class LoginUserResponseDto {
   @IsJWT()
   @ApiProperty()
-  readonly accessToken: string;
+  public readonly accessToken: string;
 }

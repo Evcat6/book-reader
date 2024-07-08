@@ -1,0 +1,40 @@
+extends:
+  - '../.eslintrc.yml'
+  - 'plugin:vue/vue3-recommended'
+  - 'plugin:vue/vue3-essential'
+
+parser: 'vue-eslint-parser'
+parserOptions:
+  parser: '@typescript-eslint/parser'
+  ecmaVersion: ESNext
+  sourceType: module
+  project:
+    - ./tsconfig.json
+  extraFileExtensions: ['.vue']
+plugins:
+  - vue
+  - simple-import-sort
+
+rules:
+  'vue/html-indent':
+    - error
+    - 2
+  'vue/max-attributes-per-line':
+    - error
+    - singleline: 1
+      multiline: 1
+  'vue/singleline-html-element-content-newline':
+    - error
+  'vue/multiline-html-element-content-newline':
+    - error
+  'simple-import-sort/imports':
+    - error
+  'simple-import-sort/exports':
+    - error
+  vue/multi-word-component-names: 
+    - off
+
+overrides:
+  - files: ['vite-env.d.ts']
+    rules:
+      unicorn/prevent-abbreviations: 'off'

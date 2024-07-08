@@ -1,1 +1,1 @@
-export { MAX_BOOK_UPLOAD_SIZE, ALLOWED_BOOK_UPLOAD_TYPE } from './book-upload.constant';
+export { ALLOWED_BOOK_UPLOAD_TYPE,MAX_BOOK_UPLOAD_SIZE } from './book-upload.constant';

@@ -1,1 +1,1 @@
-export { PageMetaDtoParameters } from './page-meta-dto-parameters.type';
+export type { PageMetaDtoParameters } from './page-meta-dto-parameters.type';
