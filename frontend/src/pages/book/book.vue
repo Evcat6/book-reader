@@ -26,6 +26,7 @@
             icon="mdi-bookmark-outline"
           /> {{ bookStore.book.addedToFavorites }}
         </p>
+        <p>{{ bookStore.book.genres.map(book => book.name).join(", ") }}</p>
       </div>
       <p>Size: {{ `${(bookStore.book.size / 1024 / 1024).toFixed(3)} MB` }}</p>
       <v-btn :href="bookStore.book.accessLink">
@@ -48,25 +49,15 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeRouteLeave, onBeforeRouteUpdate,useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 
-import { StorageKey } from '@/common/enums';
 import { DataStatus } from '@/common/enums/data-status.enum';
-import { storageService } from '@/services';
 import { useBookStore } from '@/stores/book.store';
 
 const route = useRoute();
 
 const bookStore = useBookStore();
 
-void bookStore.loadBook(route.params.id as string);
+void bookStore.loadOnById(route.params.id as string);
 
-if (storageService.get(StorageKey.IS_BOOK_VIEWED) === 'false') {
-  void bookStore.sendView(route.params.id as string);
-  storageService.set(StorageKey.IS_BOOK_VIEWED, 'true');
-}
-
-onBeforeRouteLeave(() => storageService.set(StorageKey.IS_BOOK_VIEWED, 'false'));
-
-onBeforeRouteUpdate(() => storageService.set(StorageKey.IS_BOOK_VIEWED, 'false'));
 </script>

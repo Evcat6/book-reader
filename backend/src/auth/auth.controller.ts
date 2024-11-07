@@ -12,10 +12,10 @@ import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public, User } from '@/common/decorator';
 import { EMAIL_VERIFICATION_TOPIC } from '@/kafka/constant/kafka.constant';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
-import type { UserService } from '@/user/user.service';
+import { UserService } from '@/user/user.service';
 
-import type { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
+import { AuthService } from './auth.service';
+import { LoginUserRequestDto } from './dto/login-user-request.dto';
 import { LoginUserResponseDto } from './dto/login-user-response.dto';
 import { AuthGuard } from './guard/auth.guard';
 
@@ -29,10 +29,10 @@ export class AuthController {
   ) {}
 
   @Public()
-  @ApiBody({ type: LoginUserDto })
+  @ApiBody({ type: LoginUserRequestDto })
   @ApiResponse({ type: LoginUserResponseDto })
   @Post('login')
-  public async login(@Body() user: LoginUserDto): Promise<{
+  public async login(@Body() user: LoginUserRequestDto): Promise<{
     accessToken: string;
   }> {
     return await this.authService.login(user);

@@ -1,24 +1,28 @@
 import type internal from 'node:stream';
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isBoolean } from 'class-validator';
 import type { UploadApiResponse } from 'cloudinary/types'; // Installed already with nestjs-cloudinary
-import type { CloudinaryService } from 'nestjs-cloudinary';
+import { CloudinaryService } from 'nestjs-cloudinary';
 import { pdftobuffer } from 'pdftopic';
-import type { Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Like } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 import type { BooksOptionsDto } from '@/book/dto/books-options.dto';
 import { PageDto, PageMetaDto } from '@/common/dto';
 import { BOOKS_BUCKET_NAME } from '@/minio-client/constant';
-import type { MinioClientService } from '@/minio-client/minio-client.service';
+import { MinioClientService } from '@/minio-client/minio-client.service';
 import type { BufferedFile } from '@/minio-client/model';
 import { UserEntity } from '@/user/entity/user.entity';
 
 import { QUERY_VIEWS_CACHE, TOP_BOOKS_COUNT } from './constant';
-import type { CreateBookDto } from './dto/create-book.dto';
+import type { CreateBookRequestDto } from './dto/create-book-request.dto';
 import { BookEntity } from './entity/book.entity';
+import { GenreEntity } from '@/genre/entity/genre.entity';
+import { Cache } from '@nestjs/cache-manager';
+import { RedisKeyPrefix } from '@/common/enum';
 
 @Injectable()
 export class BookService {
@@ -27,13 +31,17 @@ export class BookService {
     private readonly bookRepository: Repository<BookEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private minioClientService: MinioClientService,
-    private cloudinaryService: CloudinaryService
-  ) {}
+    private readonly minioClientService: MinioClientService,
+    private readonly cloudinaryService: CloudinaryService,
+    @InjectRepository(GenreEntity)
+    private readonly genreRepository: Repository<GenreEntity>,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+  ) { }
 
   public async create(
     userId: string,
-    { name, file, isPrivate }: CreateBookDto
+    { name, file, isPrivate, genresIds  }: CreateBookRequestDto
   ): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
@@ -48,10 +56,12 @@ export class BookService {
         })
         .end(previewImage);
     });
+    const genres = await Promise.all(genresIds?.map((genreId) => this.genreRepository.findOneBy({ id: genreId })) || []);
 
     const newBook = new BookEntity(
       { name, file, isPrivate, fileName, previewLink: uploadResult.secure_url },
-      user
+      user,
+      genres
     );
     await this.bookRepository.save(newBook);
   }
@@ -89,7 +99,7 @@ export class BookService {
       .loadRelationCountAndMap(
         'books.addedToFavorites',
         'books.userAddedToFavorites',
-        'addedToFavorites'
+        'addedToFavorites',
       )
       .orderBy('books.createdAt', pageOptionsDto.order)
       .where(whereOptions)
@@ -106,6 +116,8 @@ export class BookService {
 
   public async getOne(userId: string, bookId: string): Promise<BookEntity> {
     const queryBuilder = this.bookRepository.createQueryBuilder('books');
+    const isViewed = await this.cacheManager.get(`${RedisKeyPrefix.USER_INFO}:${bookId}:${userId}`);
+
     queryBuilder
       .where({ id: bookId })
       .loadRelationCountAndMap('book.views', 'books.userViews', 'views')
@@ -114,17 +126,47 @@ export class BookService {
         'books.userAddedToFavorites',
         'addedToFavorites'
       )
-      .leftJoinAndSelect('books.user', 'user');
+      .leftJoinAndSelect('books.user', 'user')
+      .leftJoinAndSelect('books.genres', 'genres')
+      // .relation('genres')
+    if (!isViewed) {
+      queryBuilder
+        .leftJoinAndSelect('books.userViews', 'userViews', "user.id = :userId", { userId });
+    }
+    await queryBuilder.getRawOne().then(console.log);
     const book = await queryBuilder.getOne();
+
     if (!book) {
-      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
 
     if (book.isPrivate && book.user.id !== userId) {
-      throw new HttpException('Bad Request', HttpStatus.FORBIDDEN);
+      throw new BadRequestException();
+    }
+
+    if (!isViewed) {
+      if(book.userViews.length > 0) {
+        await this.cacheManager.set(`${RedisKeyPrefix.USER_INFO}:${bookId}:${userId}`, true);
+      } else {
+        await this.setView(book, userId);
+      }
     }
 
     return book;
+  }
+
+  private async setView(book: BookEntity, userId: string) {
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    book.userViews.push(user);
+
+    await this.bookRepository.save(book);
+
+    await this.cacheManager.set(`${RedisKeyPrefix.USER_INFO}:${book.id}:${userId}`, true);
   }
 
   public async getDownloadFile(objectName: string): Promise<internal.Readable> {
@@ -175,27 +217,6 @@ export class BookService {
 
   //   const book = await this.bookRepository.findOne({ where: {} });
   // }
-
-  public async sendView(userId: string, bookId: string): Promise<void> {
-    const book = await this.bookRepository.findOne({
-      where: { id: bookId },
-      relations: ['userViews'],
-    });
-
-    if (!book) {
-      throw new HttpException('Book not found', HttpStatus.NOT_FOUND);
-    }
-
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    book.userViews.push(user);
-
-    await this.bookRepository.save(book);
-  }
 
   private async extractFirstPageFromPdf(
     bufferedFile: BufferedFile

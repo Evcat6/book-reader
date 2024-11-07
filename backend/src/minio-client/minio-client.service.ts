@@ -2,9 +2,9 @@ import * as crypto from 'node:crypto';
 import type internal from 'node:stream';
 
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import type { MinioClient, MinioService } from 'nestjs-minio-client';
+import { MinioClient, MinioService } from 'nestjs-minio-client';
 
-import type { AppLogger } from '@/common/service';
+import { AppLogger } from '@/common/service';
 
 import type { BufferedFile } from './model';
 

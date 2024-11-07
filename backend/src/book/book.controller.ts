@@ -6,6 +6,7 @@ import {
   Get,
   MaxFileSizeValidator,
   Param,
+  ParseArrayPipe,
   ParseFilePipe,
   Post,
   Query,
@@ -16,7 +17,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { AuthGuard } from '@/auth/guard/auth.guard';
 import { BooksOptionsDto } from '@/book/dto/books-options.dto';
@@ -26,6 +27,11 @@ import { BufferedFile } from '@/minio-client/model';
 
 import { BookService } from './book.service';
 import { BookEntity, GROUP_ALL_BOOKS, GROUP_BOOK } from './entity/book.entity';
+import { CreateBookRequestDto } from './dto/create-book-request.dto';
+import { OmitType } from '@nestjs/mapped-types';
+import { validate } from 'class-validator';
+
+class CreateBookPayloadDto extends OmitType(CreateBookRequestDto, ['file'] as const) {}
 
 @Controller('books')
 @ApiTags('Books')
@@ -36,10 +42,10 @@ export class BookController {
   @Post()
   @ApiBearerAuth('JWT-auth')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
   public async create(
     @User('sub') id: string,
-    @Body('name') name: string,
-    @Body('isPrivate') isPrivate: boolean,
+    @Body() payload: CreateBookPayloadDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -50,7 +56,7 @@ export class BookController {
     )
     file: BufferedFile
   ): Promise<void> {
-    return await this.bookService.create(id, { name, file, isPrivate });
+    return await this.bookService.create(id, { file,  ...payload });
   }
 
   @Get()
@@ -84,15 +90,6 @@ export class BookController {
     @User('sub') userId: string
   ): Promise<BookEntity> {
     return await this.bookService.getOne(userId, bookId);
-  }
-
-  @Post('send-view/:id')
-  @ApiBearerAuth('JWT-auth')
-  public async sendView(
-    @User('sub') userId: string,
-    @Param('id') bookId: string
-  ): Promise<void> {
-    await this.bookService.sendView(userId, bookId);
   }
 
   @Get('file/:id')

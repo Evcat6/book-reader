@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { join } from 'node:path';
 
 import type { INestApplication } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
@@ -40,7 +40,7 @@ async function bootstrap(): Promise<void> {
 
   app.enableCors({ origin: '*' });
 
-  app.useStaticAssets(path.join(__dirname, 'uploads'), { prefix: '/uploads' });
+  app.useStaticAssets(join(__dirname, 'uploads'), { prefix: '/uploads' });
 
   setupDocumentation(app);
 

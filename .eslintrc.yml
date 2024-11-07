@@ -6,6 +6,9 @@ parserOptions:
     - ./tsconfig.json
     - ./backend/tsconfig.json
     - ./frontend/tsconfig.json
+ignores:
+  - node_modules
+  - dist
 settings:
   typescript: true
   node: true
@@ -65,10 +68,6 @@ rules:
   '@typescript-eslint/quotes':
     - error
     - single
-  '@typescript-eslint/consistent-type-imports':
-    - error
-  '@typescript-eslint/consistent-type-exports':
-    - error
   '@typescript-eslint/explicit-function-return-type':
     - error
     - allowTypedFunctionExpressions: true

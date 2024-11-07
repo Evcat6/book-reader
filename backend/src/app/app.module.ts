@@ -21,6 +21,7 @@ import { HttpLoggerMiddleware } from '@/common/middleware';
 import { AppLogger } from '@/common/service';
 import { configModuleValidationSchema } from '@/common/validation-schema/config-module.validation';
 import { UserModule } from '@/user/user.module';
+import { GenreModule } from '@/genre/genre.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { UserModule } from '@/user/user.module';
     UserModule,
     AuthModule,
     BookModule,
+    GenreModule,
   ],
   providers: [
     {

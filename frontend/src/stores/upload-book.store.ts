@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { DataStatus } from '@/common/enums';
 import type { HttpError } from '@/common/exceptions/http-error.exception';
 
-import { booksApiService,notificationService } from '../services';
+import { booksApiService, notificationService } from '../services';
 
 type State = {
   dataStatus: DataStatus;
@@ -16,7 +16,7 @@ const defaultState: State = {
 export const useUploadBookStore = defineStore('upload-book', {
   state: () => defaultState,
   actions: {
-    async create(payload: FormData) {
+    async createOne(payload: FormData) {
       try {
         this.dataStatus = DataStatus.PENDING;
         await booksApiService.create(payload);
@@ -25,6 +25,8 @@ export const useUploadBookStore = defineStore('upload-book', {
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
         notificationService.error((error as HttpError).message);
+      } finally {
+        this.dataStatus = DataStatus.IDLE;
       }
     },
   },

@@ -1,10 +1,11 @@
-import path from 'node:path';
-
 import { registerAs } from '@nestjs/config';
 import { Transport } from '@nestjs/microservices';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import type { RedisStore } from 'cache-manager-redis-store';
 import { redisStore } from 'cache-manager-redis-store';
+import { join } from 'path';
+import { DataSourceOptions } from 'typeorm'
+import { SeederOptions } from 'typeorm-extension';
 
 export enum ConfigKey {
   POSTGRES = 'POSTGRES',
@@ -18,16 +19,18 @@ export enum ConfigKey {
 export enum Environment {
   PRODUCTION = 'production',
   DEVELOPMENT = 'development',
+  TEST = 'test'
 }
 
-const PostgresConfig = registerAs(ConfigKey.POSTGRES, () => ({
+const PostgresConfig = registerAs(ConfigKey.POSTGRES, (): DataSourceOptions & SeederOptions => ({
   type: 'postgres',
   host: process.env.POSTGRES_HOST,
   port: Number(process.env.POSTGRES_PORT),
   username: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
-  entities: [path.join(__dirname, '../..', '**', '*.entity.{ts,js}')],
+  entities: [join(__dirname, '../..', '**', '*.entity.{ts,js}')],
+  seeds: [join(__dirname, '../../seeds',)],
   synchronize: true,
 }));
 

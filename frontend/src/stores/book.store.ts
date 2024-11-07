@@ -24,20 +24,18 @@ const defaultState: State = {
     accessLink: '',
     size: Number.NaN,
     addedToFavorites: Number.NaN,
+    genres: []
   },
 };
 
 export const useBookStore = defineStore('book', {
   state: () => defaultState,
   actions: {
-    async loadBook(id: string) {
+    async loadOnById(id: string) {
       this.dataStatus = DataStatus.PENDING;
       const response = await booksApiService.loadById(id);
       this.dataStatus = DataStatus.FULFILLED;
       this.book = response;
-    },
-    async sendView(id: string) {
-      await booksApiService.sendView(id);
     },
   },
 });

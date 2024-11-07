@@ -22,7 +22,7 @@ const defaultState: State = {
 export const useBooksStore = defineStore('books', {
   state: () => defaultState,
   actions: {
-    loadBooks: async function ({
+    loadMany: async function ({
       type,
       page = 1,
       searchQuery = '',

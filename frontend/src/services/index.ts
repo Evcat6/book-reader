@@ -10,6 +10,7 @@ import { HttpService } from './http/http.service';
 import { NotificationService } from './notification/notification.service';
 import { StorageService } from './storage/storage.service';
 import { UserService } from './user-api/user-api.service';
+import { GenresApiService } from './genres-api/genres-api.service';
 
 const configService = new ConfigService(import.meta.env as EnvironmentConfig);
 
@@ -25,6 +26,8 @@ const userApiService = new UserService(httpService, API_BASE_ENDPOINT.USERS);
 
 const booksApiService = new BooksApiService(httpService, API_BASE_ENDPOINT.BOOKS);
 
+const genresApiService = new GenresApiService(httpService, API_BASE_ENDPOINT.GENRES);
+
 export {
   authApiService,
   booksApiService,
@@ -33,4 +36,5 @@ export {
   notificationService,
   storageService,
   userApiService,
+  genresApiService,
 };

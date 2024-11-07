@@ -1,13 +1,8 @@
-import type {
-  OnModuleDestroy,
-  OnModuleInit } from '@nestjs/common';
-import {
-  Inject,
-  Injectable
-} from '@nestjs/common';
-import type { ClientKafka } from '@nestjs/microservices';
+import type { OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
 
-import type { AppLogger } from '@/common/service';
+import { AppLogger } from '@/common/service';
 
 import {
   EMAIL_VERIFICATION_TOPIC,

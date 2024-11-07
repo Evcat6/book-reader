@@ -1,15 +1,21 @@
-import type { Cache } from '@nestjs/cache-manager';
+import { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import type { Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { BookEntity } from '@/book/entity/book.entity';
 import { RedisExpirationTime, RedisKeyPrefix } from '@/common/enum';
-import type { AppLogger } from '@/common/service';
+import { AppLogger } from '@/common/service';
 
 import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
@@ -22,8 +28,9 @@ export class UserService {
     private readonly usersRepository: Repository<UserEntity>,
     @InjectRepository(BookEntity)
     private readonly bookRepository: Repository<BookEntity>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private logger: AppLogger
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+    private readonly logger: AppLogger
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<UserEntity> {

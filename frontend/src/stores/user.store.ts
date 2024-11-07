@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 
-import type { LoadUserResponse } from '@/common/dto';
+import type { LoadUserResponseDto } from '@/common/dto';
 import { DataStatus, StorageKey } from '@/common/enums';
 import type { HttpError } from '@/common/exceptions';
 
 import { notificationService, storageService, userApiService } from '../services';
 
 type State = {
-  user: Omit<LoadUserResponse, 'id'> & { id: string | null };
+  user: Omit<LoadUserResponseDto, 'id'> & { id: string | null };
   dataStatus: DataStatus;
 };
 

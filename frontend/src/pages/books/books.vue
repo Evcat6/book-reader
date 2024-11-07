@@ -103,20 +103,20 @@ const searchByForm = reactive({
 const booksStore = useBooksStore();
 
 const onSearch = (): void => {
-  void booksStore.loadBooks({
+  void booksStore.loadMany({
     type: route.params.type as BooksTabsValue,
     ...searchByForm,
   });
 };
 
 onMounted(() => {
-  void booksStore.loadBooks({ type: route.params.type as BooksTabsValue });
+  void booksStore.loadMany({ type: route.params.type as BooksTabsValue });
 });
 
 watch(
   () => [searchByForm.orderBy, searchByForm.currentPage],
   () => {
-    void booksStore.loadBooks({
+    void booksStore.loadMany({
       type: route.params.type as BooksTabsValue,
       searchQuery: searchByForm.searchQuery,
       page: searchByForm.currentPage,

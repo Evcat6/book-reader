@@ -14,7 +14,8 @@ import {
 import { APP_GLOBAL_PREFIX } from '@/common/constant';
 import { UserEntity } from '@/user/entity/user.entity';
 
-import { CreateBookDto } from '../dto/create-book.dto';
+import { CreateBookRequestDto } from '../dto/create-book-request.dto';
+import { GenreEntity } from '@/genre/entity/genre.entity';
 
 export const GROUP_BOOK = 'group_book_details';
 export const GROUP_ALL_BOOKS = 'group_all_books';
@@ -78,6 +79,12 @@ export class BookEntity {
   @Exclude()
   public userAddedToFavorites?: UserEntity[];
 
+  @ApiHideProperty()
+  @ManyToMany(() => GenreEntity, (genre) => genre.books)
+  @JoinTable({ name: 'book_genres' })
+  // @Exclude()
+  public genres: GenreEntity[];
+
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'views' })
   public views: number;
 
@@ -91,14 +98,15 @@ export class BookEntity {
   }
 
   public constructor(
-    book?: CreateBookDto & {
+    book?: Omit<CreateBookRequestDto, 'genresIds'> & {
       fileName: string;
       previewLink: string;
       views?: number;
     },
-    user?: UserEntity
+    user?: UserEntity,
+    genres?: GenreEntity[]
   ) {
-    if (!book) {
+    if (!book || !user || !genres) {
       return;
     }
     this.fileName = book.fileName;
@@ -107,5 +115,6 @@ export class BookEntity {
     this.size = book.file.size;
     this.user = user;
     this.previewLink = book.previewLink;
+    this.genres = genres;
   }
 }

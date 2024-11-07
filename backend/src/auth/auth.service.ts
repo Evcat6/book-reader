@@ -15,7 +15,7 @@ import { KafkaService } from '@/kafka/kafka.service';
 import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { UserService } from '@/user/user.service';
 
-import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserRequestDto } from './dto/login-user-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +26,7 @@ export class AuthService {
     private readonly logger: AppLogger,
     private readonly mailerService: MailerService,
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache
+    private readonly cacheManager: Cache
   ) {}
 
   private async validate(
@@ -51,7 +51,7 @@ export class AuthService {
     throw new HttpException('Invalid credentials', HttpStatus.BAD_REQUEST);
   }
 
-  public async login(user: LoginUserDto): Promise<{
+  public async login(user: LoginUserRequestDto): Promise<{
     accessToken: string;
   }> {
     const userEntity = await this.validate(user.email, user.password);

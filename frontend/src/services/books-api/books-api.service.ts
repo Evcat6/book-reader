@@ -46,13 +46,6 @@ class BooksApiService {
     });
     return await response.json<LoadBookResponseDto>();
   }
-
-  public async sendView(id: string): Promise<void> {
-    await this.httpService.load(`${this.baseEndpoint}/send-view/${id}`, {
-      method: HttpMethod.POST,
-      contentType: ContentType.APPLICATION_JSON,
-    });
-  }
 }
 
 export { BooksApiService };
