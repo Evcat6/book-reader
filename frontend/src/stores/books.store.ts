@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
-import { booksApiService } from '../services';
+
+import type { LoadBooksResponseDto } from '@/common/dto';
 import { BooksTabsValue, DataStatus } from '@/common/enums';
-import { LoadBooksResponseDto } from '@/common/dto';
+
+import { booksApiService } from '../services';
 
 type State = {
   dataStatus: DataStatus;
@@ -20,7 +22,7 @@ const defaultState: State = {
 export const useBooksStore = defineStore('books', {
   state: () => defaultState,
   actions: {
-    loadBooks: async function ({
+    loadMany: async function ({
       type,
       page = 1,
       searchQuery = '',
@@ -32,15 +34,19 @@ export const useBooksStore = defineStore('books', {
       order?: 'ASC' | 'DESC';
     }) {
       this.dataStatus = DataStatus.PENDING;
-      if (type === BooksTabsValue.ALL) {
+      switch (type) {
+      case BooksTabsValue.ALL: {
         const {
           data,
           meta: { page: currentPage, pageCount },
-        } = await booksApiService.loadMany({ userOwned: false, page, searchQuery, order });
+        } = await booksApiService.loadMany({ page, searchQuery, order });
         this.books = data;
         this.pageCount = pageCount;
         this.page = currentPage;
-      } else if (type === BooksTabsValue.MY) {
+      
+      break;
+      }
+      case BooksTabsValue.MY: {
         const {
           data,
           meta: { page: currentPage, pageCount },
@@ -48,8 +54,15 @@ export const useBooksStore = defineStore('books', {
         this.books = data;
         this.pageCount = pageCount;
         this.page = currentPage;
-      } else if (type === BooksTabsValue.POPULAR) {
+      
+      break;
+      }
+      case BooksTabsValue.POPULAR: {
         this.books = await booksApiService.loadPopular();
+      
+      break;
+      }
+      // No default
       }
       this.dataStatus = DataStatus.FULFILLED;
     },

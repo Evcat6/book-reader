@@ -1,38 +1,65 @@
-import { Exclude } from 'class-transformer';
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-
-import { CreateUserDto } from '../dto/create-user.dto';
-import { BookEntity } from '@/book/entity/book.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+import { BookEntity } from '@/book/entity/book.entity';
+
+import type { CreateUserDto } from '../dto/create-user.dto';
 
 @Entity({ name: 'users' })
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  public id: string;
 
   @Column({ unique: true })
-  email: string;
+  public email: string;
 
   @Column()
-  username: string;
+  public username: string;
 
   @Exclude()
   @ApiHideProperty()
   @Column({ nullable: true })
-  password: string;
+  public password: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date;
+  @Column({ nullable: false, default: false })
+  public verified: boolean;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'createdAt' })
+  public createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt: Date;
+  public updatedAt: Date;
 
   @ApiHideProperty()
   @OneToMany(() => BookEntity, (book) => book.user)
-  books: BookEntity[];
+  public books: BookEntity[];
 
-  constructor(user?: CreateUserDto) {
-    if (!user) return;
+  @ApiHideProperty()
+  @ManyToMany(() => BookEntity)
+  @JoinTable({ name: 'books_views' })
+  @Exclude()
+  public bookViews?: BookEntity[];
+
+  @ApiHideProperty()
+  @ManyToMany(() => BookEntity)
+  @JoinTable({ name: 'books_added_to_favorites' })
+  @Exclude()
+  public bookSaves?: BookEntity[];
+
+  public constructor(user?: CreateUserDto) {
+    if (!user) {
+      return;
+    }
     this.email = user.email;
     this.username = user.username;
   }

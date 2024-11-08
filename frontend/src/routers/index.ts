@@ -1,9 +1,12 @@
-import { Layout } from '../components/components';
-import { RouteLocation, createRouter, createWebHistory } from 'vue-router';
-import { Auth, UploadBook, NotFound, Books, Book } from '../pages';
-import { AppRoute, DataStatus, StorageKey } from '../common/enums';
+import type { RouteLocation } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
+
 import { storageService } from '@/services';
 import { useUserStore } from '@/stores/user.store';
+
+import { AppRoute, DataStatus, StorageKey } from '../common/enums';
+import { Layout } from '../components/components';
+import { Auth, Book, Books, NotFound, UploadBook } from '../pages';
 
 const routes = [
   {
@@ -24,7 +27,7 @@ const routes = [
       },
       {
         path: AppRoute.BOOKS,
-        redirect: () => {
+        redirect: (): string => {
           return '/books/all';
         },
       },
@@ -33,8 +36,8 @@ const routes = [
         component: Book,
       },
     ],
-    redirect: (to: RouteLocation) => {
-      if (to.path === AppRoute.ROOT) {
+    redirect: (to: RouteLocation): string => {
+      if ((to.path as AppRoute) === AppRoute.ROOT) {
         return AppRoute.BOOKS_$TYPE;
       }
       return to.path;
@@ -63,7 +66,7 @@ const routes = [
   },
 ];
 
-const publicRoutes = routes.filter((route) => !route.meta.requiresAuth).map((route) => route.path);
+const publicRoutes = new Set(routes.filter((route) => !route.meta.requiresAuth).map((route) => route.path));
 
 const router = createRouter({
   history: createWebHistory(),
@@ -73,18 +76,26 @@ const router = createRouter({
 router.beforeEach(async (to, _from, next) => {
   if (to.meta.requiresAuth) {
     const token = storageService.get(StorageKey.TOKEN);
-    if (!token) return next(AppRoute.LOGIN);
+    if (!token) {
+      return next(AppRoute.LOGIN);
+    }
 
     const userStore = useUserStore();
 
-    if (userStore.dataStatus === DataStatus.FULFILLED) return next();
+    if (userStore.dataStatus === DataStatus.FULFILLED) {
+      return next();
+    }
 
     await userStore.load();
-    if (userStore.dataStatus === DataStatus.REJECTED) return next(AppRoute.LOGIN);
+    if (userStore.dataStatus === DataStatus.REJECTED) {
+      return next(AppRoute.LOGIN);
+    }
   }
   if (!to.meta.requiresAuth) {
     const token = storageService.get(StorageKey.TOKEN);
-    if (token && publicRoutes.includes(to.path as AppRoute)) return next(AppRoute.BOOKS_$TYPE);
+    if (token && publicRoutes.has(to.path as AppRoute)) {
+      return next(AppRoute.BOOKS_$TYPE);
+    }
   }
   next();
 });

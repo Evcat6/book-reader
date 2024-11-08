@@ -1,4 +1,4 @@
-export type LoadUserResponse = {
+export type LoadUserResponseDto = {
   id: string;
   email: string;
   username: string;

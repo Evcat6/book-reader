@@ -11,7 +11,7 @@
       <v-text-field
         v-model="username"
         label="User Name"
-        :bind="usernameAttrs"
+        :bind="usernameAttributes"
         :hint="errors.username"
         :error="Boolean(errors.username)"
         persistent-hint
@@ -21,7 +21,7 @@
         v-model="email"
         type="email"
         label="Email"
-        :bind="emailAttrs"
+        :bind="emailAttributes"
         :hint="errors.email"
         :error="Boolean(errors.email)"
         persistent-hint
@@ -31,7 +31,7 @@
         v-model="password"
         type="password"
         label="Password"
-        :bind="passwordAttrs"
+        :bind="passwordAttributes"
         :hint="errors.password"
         :error="Boolean(errors.password)"
         persistent-hint
@@ -41,7 +41,7 @@
         v-model="repeatPassword"
         type="password"
         label="Repeat password"
-        :bind="repeatPasswordAttrs"
+        :bind="repeatPasswordAttributes"
         :hint="errors.repeatPassword"
         :error="Boolean(errors.repeatPassword)"
         persistent-hint
@@ -68,11 +68,12 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store';
-import { AppRoute } from '@/common/enums';
-import { useRouter } from 'vue-router';
 import { useForm } from 'vee-validate';
+import { useRouter } from 'vue-router';
+
+import { AppRoute } from '@/common/enums';
 import { RegisterValidationSchema } from '@/common/validation-schemas';
+import { useAuthStore } from '@/stores/auth.store';
 
 const { errors, handleSubmit, defineField } = useForm({
   initialValues: {
@@ -84,10 +85,10 @@ const { errors, handleSubmit, defineField } = useForm({
   validationSchema: RegisterValidationSchema,
 });
 
-const [username, usernameAttrs] = defineField('username');
-const [email, emailAttrs] = defineField('email');
-const [password, passwordAttrs] = defineField('password');
-const [repeatPassword, repeatPasswordAttrs] = defineField('repeatPassword');
+const [username, usernameAttributes] = defineField('username');
+const [email, emailAttributes] = defineField('email');
+const [password, passwordAttributes] = defineField('password');
+const [repeatPassword, repeatPasswordAttributes] = defineField('repeatPassword');
 
 const authStore = useAuthStore();
 
@@ -96,6 +97,6 @@ const router = useRouter();
 const onSubmit = handleSubmit(async (values) => {
   const { repeatPassword, ...formData } = values;
   await authStore.register(formData);
-  router.push(AppRoute.UPLOAD_BOOK);
+  void router.push(AppRoute.UPLOAD_BOOK);
 });
 </script>

@@ -6,6 +6,7 @@ import {
   Get,
   MaxFileSizeValidator,
   Param,
+  ParseArrayPipe,
   ParseFilePipe,
   Post,
   Query,
@@ -15,40 +16,47 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+
 import { AuthGuard } from '@/auth/guard/auth.guard';
+import { BooksOptionsDto } from '@/book/dto/books-options.dto';
 import { Public, User } from '@/common/decorator';
+import { PageDto } from '@/common/dto';
+import { BufferedFile } from '@/minio-client/model';
 
 import { BookService } from './book.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { BooksOptionsDto } from '@/book/dto/books-options.dto';
-import { BufferedFile } from '@/minio-client/model';
-import { GROUP_ALL_BOOKS, GROUP_BOOK } from './entity/book.entity';
+import { BookEntity, GROUP_ALL_BOOKS, GROUP_BOOK } from './entity/book.entity';
+import { CreateBookRequestDto } from './dto/create-book-request.dto';
+import { OmitType } from '@nestjs/mapped-types';
+import { validate } from 'class-validator';
+
+class CreateBookPayloadDto extends OmitType(CreateBookRequestDto, ['file'] as const) {}
 
 @Controller('books')
 @ApiTags('Books')
 @UseGuards(AuthGuard)
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  public constructor(private readonly bookService: BookService) {}
 
   @Post()
   @ApiBearerAuth('JWT-auth')
   @UseInterceptors(FileInterceptor('file'))
-  async create(
+  @ApiConsumes('multipart/form-data')
+  public async create(
     @User('sub') id: string,
-    @Body('name') name: string,
-    @Body('isPrivate') isPrivate: boolean,
+    @Body() payload: CreateBookPayloadDto,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 25 * 1024 * 1024 }), // MB * Kb * B
           new FileTypeValidator({ fileType: 'pdf' }),
         ],
-      }),
+      })
     )
-    file: BufferedFile,
-  ) {
-    return await this.bookService.create(id, { name, file, isPrivate });
+    file: BufferedFile
+  ): Promise<void> {
+    return await this.bookService.create(id, { file,  ...payload });
   }
 
   @Get()
@@ -56,9 +64,11 @@ export class BookController {
   @SerializeOptions({
     groups: [GROUP_ALL_BOOKS],
   })
-  async getMany(@Query() booksRequestDto: BooksOptionsDto, @User('sub') userId: string) {
-    const response = await this.bookService.getMany(userId, booksRequestDto);
-    return response;
+  public async getMany(
+    @Query() booksRequestDto: BooksOptionsDto,
+    @User('sub') userId: string
+  ): Promise<PageDto<BookEntity>> {
+    return await this.bookService.getMany(userId, booksRequestDto);
   }
 
   @Get('popular')
@@ -66,9 +76,8 @@ export class BookController {
   @SerializeOptions({
     groups: [GROUP_ALL_BOOKS],
   })
-  async getPopular() {
-    const response = await this.bookService.getPopular();
-    return response;
+  public async getPopular(): Promise<BookEntity[]> {
+    return await this.bookService.getPopular();
   }
 
   @Get(':id')
@@ -76,27 +85,26 @@ export class BookController {
     groups: [GROUP_BOOK],
   })
   @ApiBearerAuth('JWT-auth')
-  async getOne(@Param('id') bookId: string, @User('sub') userId: string) {
-    const response = await this.bookService.getOne(userId, bookId);
-    return response;
-  }
-
-  @Post('send-view/:id')
-  @ApiBearerAuth('JWT-auth')
-  async sendView(@User('sub') userId: string, @Param('id') bookId: string) {
-    await this.bookService.sendView(userId, bookId);
+  public async getOne(
+    @Param('id') bookId: string,
+    @User('sub') userId: string
+  ): Promise<BookEntity> {
+    return await this.bookService.getOne(userId, bookId);
   }
 
   @Get('file/:id')
   @Public()
-  async getFile(@Param('id') bookId: string) {
+  public async getFile(@Param('id') bookId: string): Promise<StreamableFile> {
     const file = await this.bookService.getDownloadFile(bookId);
     return new StreamableFile(file);
   }
 
   @Delete(':id')
   @ApiBearerAuth('JWT-auth')
-  async deleteById(@User('sub') userId: string, @Param('id') bookId: string) {
+  public async deleteById(
+    @User('sub') userId: string,
+    @Param('id') bookId: string
+  ): Promise<boolean> {
     return await this.bookService.removeById(userId, bookId);
   }
 }

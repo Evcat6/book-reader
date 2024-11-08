@@ -1,18 +1,36 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Cache } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { instanceToInstance } from 'class-transformer';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { Repository } from 'typeorm';
 
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { BookEntity } from '@/book/entity/book.entity';
+import { RedisExpirationTime, RedisKeyPrefix } from '@/common/enum';
+import { AppLogger } from '@/common/service';
+
+import type { CreateUserDto } from './dto/create-user.dto';
+import type { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entity/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(
+  public constructor(
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
+    @InjectRepository(BookEntity)
+    private readonly bookRepository: Repository<BookEntity>,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
+    private readonly logger: AppLogger
   ) {}
 
   public async create(createUserDto: CreateUserDto): Promise<UserEntity> {
@@ -26,40 +44,104 @@ export class UserService {
 
     const user = new UserEntity(createUserDto);
     user.password = await bcrypt.hash(createUserDto.password, 10);
-    const createdUser = await this.usersRepository.save(user);
-
-    return instanceToInstance(createdUser);
+    return await this.usersRepository.save(user);
   }
 
-  private async findBy(payload: Partial<UserEntity>) {
+  private async findBy(payload: Partial<UserEntity>): Promise<UserEntity> {
     const user = await this.usersRepository.findOneBy(payload);
     if (!user) {
-      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException();
     }
     return user;
   }
 
-  public async findById(id: string) {
+  public async findById(id: string): Promise<UserEntity> {
+    const userFromCache = await this.cacheManager.get(
+      `${RedisKeyPrefix.USER_INFO}:${id}`
+    );
+
+    if (userFromCache) {
+      return plainToInstance(UserEntity, userFromCache);
+    }
+
     const user = await this.findBy({ id });
-    return instanceToInstance(user);
+    await this.cacheManager.set(
+      `${RedisKeyPrefix.USER_INFO}:${id}`,
+      instanceToPlain(user)
+    );
+    return user;
   }
 
-  public async findByEmail(email: string) {
+  public async addBookToFavorites(
+    userId: string,
+    bookId: string
+  ): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    const book = await this.bookRepository.findOneBy({ id: bookId });
+    user.bookSaves.push(book);
+
+    await this.usersRepository.save(user);
+  }
+
+  public async verifyById(id: string): Promise<void> {
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+    }
+    if (user.verified) {
+      throw new HttpException('Already activated', HttpStatus.BAD_REQUEST);
+    }
+    user.verified = true;
+    void this.usersRepository.save(user);
+  }
+
+  public async findByEmail(email: string): Promise<UserEntity> {
     return await this.findBy({ email });
   }
 
-  public async update(id: string, updateUserDto: UpdateUserDto) {
+  public async update(
+    id: string,
+    updateUserDto: UpdateUserDto
+  ): Promise<UserEntity> {
     const user = await this.usersRepository.findOneBy({ id });
 
     if (updateUserDto.username) {
       user.username = updateUserDto.username;
     }
 
-    return await this.usersRepository.save(user);
+    const updatedUser = await this.usersRepository.save(user);
+    await this.cacheManager.set(
+      `${RedisKeyPrefix.USER_INFO}:${id}`,
+      JSON.stringify(updatedUser),
+      RedisExpirationTime.ONE_DAY
+    );
+    return updatedUser;
   }
 
   public async delete(id: string): Promise<boolean> {
     const result = await this.usersRepository.delete({ id });
+    await this.cacheManager.del(`${RedisKeyPrefix.USER_INFO}:${id}`);
     return result.affected > 0;
+  }
+
+  @Cron('0 0 * * * *')
+  public async checkUnverifiedUsers(): Promise<void> {
+    this.logger.log('Unverified users deletion Cron Job started');
+    const fiveDaysAgo = new Date();
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+
+    const deletedUsers = await this.usersRepository
+      .createQueryBuilder('users')
+      .where('users."createdAt" <= :fiveDaysAgo', { fiveDaysAgo })
+      .andWhere('users.verified = :verified', { verified: false })
+      .delete()
+      .execute();
+
+    this.logger.log(
+      `Unverified users deletion Cron Job done, deleted ${deletedUsers.affected} records`
+    );
   }
 }

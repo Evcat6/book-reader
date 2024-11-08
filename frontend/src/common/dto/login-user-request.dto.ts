@@ -1,4 +1,4 @@
-export type LoginUserReqDto = {
+export type LoginUserRequestDto = {
   email: string;
   password: string;
 };

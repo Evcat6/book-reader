@@ -1,13 +1,16 @@
-import { StorageService } from './storage/storage.service';
-import { NotificationService } from './notification/notification.service';
-import { HttpService } from './http/http.service';
 import { notify } from '@kyvg/vue3-notification';
-import { ConfigService } from './config/config.service';
-import { EnvironmentConfig } from '@/common/types/environment-config.type';
-import { AuthApiService } from './auth-api/auth-api.service';
+
 import { API_BASE_ENDPOINT } from '@/common/enums/api-base-endpoint.enum';
-import { UserService } from './user-api/user-api.service';
+import type { EnvironmentConfig } from '@/common/types/environment-config.type';
+
+import { AuthApiService } from './auth-api/auth-api.service';
 import { BooksApiService } from './books-api/books-api.service';
+import { ConfigService } from './config/config.service';
+import { HttpService } from './http/http.service';
+import { NotificationService } from './notification/notification.service';
+import { StorageService } from './storage/storage.service';
+import { UserService } from './user-api/user-api.service';
+import { GenresApiService } from './genres-api/genres-api.service';
 
 const configService = new ConfigService(import.meta.env as EnvironmentConfig);
 
@@ -23,12 +26,15 @@ const userApiService = new UserService(httpService, API_BASE_ENDPOINT.USERS);
 
 const booksApiService = new BooksApiService(httpService, API_BASE_ENDPOINT.BOOKS);
 
+const genresApiService = new GenresApiService(httpService, API_BASE_ENDPOINT.GENRES);
+
 export {
-  storageService,
-  notificationService,
-  httpService,
-  configService,
   authApiService,
-  userApiService,
   booksApiService,
+  configService,
+  httpService,
+  notificationService,
+  storageService,
+  userApiService,
+  genresApiService,
 };

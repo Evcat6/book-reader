@@ -6,13 +6,10 @@ export interface BufferedFile {
   size: number;
   buffer: Buffer | string;
 }
-
 export interface StoredFile extends HasFile, StoredFileMetadata {}
-
 export interface HasFile {
   file: Buffer | string;
 }
-
 export interface StoredFileMetadata {
   id: string;
   name: string;
@@ -22,5 +19,4 @@ export interface StoredFileMetadata {
   updatedAt: Date;
   fileSrc?: string;
 }
-
 export type AppMimeType = 'application/pdf' | 'image/jpeg' | 'image/png';

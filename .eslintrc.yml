@@ -1,0 +1,105 @@
+root: true
+parserOptions:
+  ecmaVersion: ESNext
+  sourceType: module
+  project:
+    - ./tsconfig.json
+    - ./backend/tsconfig.json
+    - ./frontend/tsconfig.json
+ignores:
+  - node_modules
+  - dist
+settings:
+  typescript: true
+  node: true
+extends:
+  - 'eslint:recommended'
+  - 'plugin:import/recommended'
+  - 'plugin:import/typescript'
+  - 'plugin:@typescript-eslint/recommended'
+  - 'plugin:@typescript-eslint/recommended-requiring-type-checking'
+  - 'plugin:@typescript-eslint/strict'
+  - 'plugin:unicorn/recommended'
+  - 'plugin:sonarjs/recommended'
+plugins:
+  - simple-import-sort
+rules:
+  no-restricted-syntax:
+    - error
+    - selector: 'SwitchCase > *.consequent[type!="BlockStatement"]'
+      message: Switch cases without blocks are forbidden.
+  no-console:
+    - error
+  no-multiple-empty-lines:
+    - error
+    - max: 1
+  curly:
+    - error
+    - all
+  unicorn/no-null:
+    - 'off'
+  '@typescript-eslint/padding-line-between-statements':
+    - error
+    - blankLine: never
+      prev: export
+      next: export
+    - blankLine: always
+      prev:
+        - const
+        - class
+      next: export
+  simple-import-sort/imports:
+    - error
+  simple-import-sort/exports:
+    - error
+  import/no-unresolved:
+    - 'off'
+  import/newline-after-import:
+    - error
+    - count: 1
+  import/no-default-export:
+    - error
+  '@typescript-eslint/consistent-type-definitions':
+    - 'off'
+  '@typescript-eslint/non-nullable-type-assertion-style':
+    - 'off'
+  '@typescript-eslint/return-await':
+    - 'off'
+  '@typescript-eslint/quotes':
+    - error
+    - single
+  '@typescript-eslint/explicit-function-return-type':
+    - error
+    - allowTypedFunctionExpressions: true
+  '@typescript-eslint/no-empty-interface':
+    - error
+    - allowSingleExtends: true
+  '@typescript-eslint/explicit-member-accessibility':
+    - error
+  '@typescript-eslint/object-curly-spacing':
+    - error
+    - always
+  '@typescript-eslint/semi':
+    - error
+    - always
+  '@typescript-eslint/no-unsafe-member-access':
+    - 'off'
+  '@typescript-eslint/no-unsafe-assignment':
+    - 'off'
+  '@typescript-eslint/no-unsafe-call':
+    - 'off'
+  '@typescript-eslint/no-unsafe-return':
+    - 'off'
+  '@typescript-eslint/no-unsafe-argument':
+    - 'off'
+  '@typescript-eslint/restrict-template-expressions':
+    - 'off'
+  '@typescript-eslint/no-extraneous-class':
+    - off
+  '@typescript-eslint/no-unused-vars':
+    - error
+    - ignoreRestSiblings: true
+  unicorn/prefer-top-level-await:
+    - off
+  unicorn/prefer-module: 
+    - off

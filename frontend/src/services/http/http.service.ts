@@ -1,8 +1,9 @@
 import { ContentType, HttpHeader, StorageKey } from '@/common/enums';
 import { HttpMethod } from '@/common/enums/http-method.enum';
 import { HttpError } from '@/common/exceptions';
-import { HttpApiResponse, HttpOptions } from '@/common/types';
-import { StorageService } from '../storage/storage.service';
+import type { HttpApiResponse, HttpOptions } from '@/common/types';
+
+import type { StorageService } from '../storage/storage.service';
 
 class HttpService {
   public constructor(private storage: StorageService, private baseUrl: string) {}

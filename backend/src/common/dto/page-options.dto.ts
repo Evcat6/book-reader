@@ -1,13 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+
 import { Order } from '../enum';
 
 export class PageOptionsDto {
   @ApiPropertyOptional({ enum: Order, default: Order.ASC })
   @IsEnum(Order)
   @IsOptional()
-  readonly order?: Order = Order.ASC;
+  public readonly order?: Order = Order.ASC;
 
   @ApiPropertyOptional({
     minimum: 1,
@@ -17,7 +18,7 @@ export class PageOptionsDto {
   @IsInt()
   @Min(1)
   @IsOptional()
-  readonly page?: number = 1;
+  public readonly page?: number = 1;
 
   @ApiPropertyOptional({
     minimum: 1,
@@ -29,9 +30,9 @@ export class PageOptionsDto {
   @Min(1)
   @Max(50)
   @IsOptional()
-  readonly take?: number = 4;
+  public readonly take?: number = 4;
 
-  get skip(): number {
+  public get skip(): number {
     return (this.page - 1) * this.take;
   }
 }
