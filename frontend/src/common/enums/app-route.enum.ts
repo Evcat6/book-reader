@@ -7,6 +7,7 @@ enum AppRoute {
   BOOKS_$TYPE = '/books/:type',
   BOOKS = '/books',
   BOOK_$ID = '/book/:id',
+  PROFILE = '/profile'
 }
 
 export { AppRoute };

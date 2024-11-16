@@ -4,4 +4,5 @@ export type LoadUserResponseDto = {
   username: string;
   createdAt: string;
   updatedAt: string;
+  avatarUrl?: string;
 };
