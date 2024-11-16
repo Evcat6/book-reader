@@ -1,7 +1,9 @@
 <template>
   <v-layout>
     <Header />
-    <router-view />
+    <v-component style="margin-top: 80px; width: 100%">
+      <router-view />
+    </v-component>
   </v-layout>
 </template>
 

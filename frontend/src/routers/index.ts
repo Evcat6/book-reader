@@ -6,7 +6,7 @@ import { useUserStore } from '@/stores/user.store';
 
 import { AppRoute, DataStatus, StorageKey } from '../common/enums';
 import { Layout } from '../components/components';
-import { Auth, Book, Books, NotFound, UploadBook } from '../pages';
+import { Auth, Book, Books, NotFound, UploadBook, UserProfile } from '../pages';
 
 const routes = [
   {
@@ -35,6 +35,10 @@ const routes = [
         path: AppRoute.BOOK_$ID,
         component: Book,
       },
+      {
+        path: AppRoute.PROFILE,
+        component: UserProfile,
+      }
     ],
     redirect: (to: RouteLocation): string => {
       if ((to.path as AppRoute) === AppRoute.ROOT) {
@@ -86,7 +90,7 @@ router.beforeEach(async (to, _from, next) => {
       return next();
     }
 
-    await userStore.load();
+    await userStore.loadMe();
     if (userStore.dataStatus === DataStatus.REJECTED) {
       return next(AppRoute.LOGIN);
     }

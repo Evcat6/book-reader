@@ -34,6 +34,9 @@ export class UserEntity {
   @Column({ nullable: false, default: false })
   public verified: boolean;
 
+  @Column({ nullable: true })
+  public avatarUrl?: string;
+
   @CreateDateColumn({ type: 'timestamp', name: 'createdAt' })
   public createdAt: Date;
 
@@ -41,7 +44,7 @@ export class UserEntity {
   public updatedAt: Date;
 
   @ApiHideProperty()
-  @OneToMany(() => BookEntity, (book) => book.user)
+  @OneToMany(() => BookEntity, (book) => book.user, { onDelete: "CASCADE" })
   public books: BookEntity[];
 
   @ApiHideProperty()

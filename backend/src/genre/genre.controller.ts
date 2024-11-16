@@ -15,7 +15,6 @@ export class GenreController {
     @CacheKey('book-genres')
     @CacheTTL(RedisExpirationTime.ONE_WEEK)
     public async getAll() {
-        this.genreService.getAll().then(console.log);
         return await this.genreService.getAll();
     }
 }

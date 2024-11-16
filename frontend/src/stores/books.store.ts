@@ -62,7 +62,6 @@ export const useBooksStore = defineStore('books', {
       
       break;
       }
-      // No default
       }
       this.dataStatus = DataStatus.FULFILLED;
     },

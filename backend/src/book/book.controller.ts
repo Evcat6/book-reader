@@ -6,7 +6,6 @@ import {
   Get,
   MaxFileSizeValidator,
   Param,
-  ParseArrayPipe,
   ParseFilePipe,
   Post,
   Query,
@@ -29,7 +28,6 @@ import { BookService } from './book.service';
 import { BookEntity, GROUP_ALL_BOOKS, GROUP_BOOK } from './entity/book.entity';
 import { CreateBookRequestDto } from './dto/create-book-request.dto';
 import { OmitType } from '@nestjs/mapped-types';
-import { validate } from 'class-validator';
 
 class CreateBookPayloadDto extends OmitType(CreateBookRequestDto, ['file'] as const) {}
 

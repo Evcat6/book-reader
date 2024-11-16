@@ -1,7 +1,6 @@
 <template>
   <v-container
     v-if="booksStore.books.length > 0"
-    style="margin-top: 80px"
   >
     <v-container
       v-if="isNotPopularTab"

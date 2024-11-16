@@ -128,12 +128,10 @@ export class BookService {
       )
       .leftJoinAndSelect('books.user', 'user')
       .leftJoinAndSelect('books.genres', 'genres')
-      // .relation('genres')
     if (!isViewed) {
       queryBuilder
         .leftJoinAndSelect('books.userViews', 'userViews', "user.id = :userId", { userId });
     }
-    await queryBuilder.getRawOne().then(console.log);
     const book = await queryBuilder.getOne();
 
     if (!book) {
