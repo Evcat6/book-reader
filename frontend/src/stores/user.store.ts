@@ -18,6 +18,7 @@ const defaultState: State = {
     username: '',
     createdAt: '',
     updatedAt: '',
+    avatarUrl: undefined
   },
   dataStatus: DataStatus.IDLE,
 };
@@ -25,11 +26,11 @@ const defaultState: State = {
 export const useUserStore = defineStore('user', {
   state: () => defaultState,
   actions: {
-    async load() {
+    async loadMe() {
       try {
         this.dataStatus = DataStatus.PENDING;
 
-        const user = await userApiService.load();
+        const user = await userApiService.loadMe();
 
         this.dataStatus = DataStatus.FULFILLED;
 
@@ -40,5 +41,26 @@ export const useUserStore = defineStore('user', {
         notificationService.error((error as HttpError).message);
       }
     },
+
+    async updateMe(payload: FormData) {
+      try {
+        this.dataStatus = DataStatus.PENDING;
+        await userApiService.updateAvatar(payload);
+        this.dataStatus = DataStatus.FULFILLED;
+        notificationService.success('Profile updated successfully');
+      } catch (error) {
+        this.dataStatus = DataStatus.REJECTED;
+        notificationService.error((error as HttpError).message);
+      }
+    },
+
+    async deleteMe() {
+      try {
+        await userApiService.deleteMe();
+      } catch (error) {
+        this.dataStatus = DataStatus.REJECTED;
+        notificationService.error((error as HttpError).message);
+      }
+    }
   },
 });

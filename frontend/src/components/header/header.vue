@@ -4,14 +4,14 @@
     class="px-5"
   >
     <div class="d-flex justify-space-between w-100 align-center">
-      <h4
-        class="text-h4 font-weight-bold"
-        @click="router.push(AppRoute.BOOKS)"
+      <RouterLink
+        class="text-h4 font-weight-bold text-decoration-none text-primary"
+        :to="AppRoute.BOOKS"
       >
         BookReader
-      </h4>
+      </RouterLink>
       <v-tabs
-        v-show="route.name === 'books'"
+        v-if="route.path.includes('books')"
         color="primary"
       >
         <v-tab
@@ -39,23 +39,24 @@
       >
         <v-btn
           class="text-subtitle-1"
-          style="padding: 6px"
-          variant="tonal"
+          style="padding: 10px"
+          variant="flat"
+          color="primary"
           size="medium"
           @click="router.push(AppRoute.UPLOAD_BOOK)"
         >
           Upload
         </v-btn>
-        <h6 class="text-h6">
+        <RouterLink :to="AppRoute.PROFILE" class="text-h6 text-decoration-none text-primary">
           {{ userStore.user.username }}
-        </h6>
+        </RouterLink>
       </div>
     </div>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-import { useRoute,useRouter } from 'vue-router';
+import { RouterLink, useRoute,useRouter } from 'vue-router';
 
 import { BooksTabsValue } from '@/common/enums';
 import { useUserStore } from '@/stores/user.store';
