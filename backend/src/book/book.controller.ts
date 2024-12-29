@@ -42,7 +42,7 @@ export class BookController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   public async create(
-    @User('sub') id: string,
+    @User('id') id: string,
     @Body() payload: CreateBookPayloadDto,
     @UploadedFile(
       new ParseFilePipe({
@@ -64,7 +64,7 @@ export class BookController {
   })
   public async getMany(
     @Query() booksRequestDto: BooksOptionsDto,
-    @User('sub') userId: string
+    @User('id') userId: string
   ): Promise<PageDto<BookEntity>> {
     return await this.bookService.getMany(userId, booksRequestDto);
   }
@@ -85,7 +85,7 @@ export class BookController {
   @ApiBearerAuth('JWT-auth')
   public async getOne(
     @Param('id') bookId: string,
-    @User('sub') userId: string
+    @User('id') userId: string
   ): Promise<BookEntity> {
     return await this.bookService.getOne(userId, bookId);
   }
@@ -100,7 +100,7 @@ export class BookController {
   @Delete(':id')
   @ApiBearerAuth('JWT-auth')
   public async deleteById(
-    @User('sub') userId: string,
+    @User('id') userId: string,
     @Param('id') bookId: string
   ): Promise<boolean> {
     return await this.bookService.removeById(userId, bookId);

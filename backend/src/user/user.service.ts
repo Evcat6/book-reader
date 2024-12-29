@@ -23,7 +23,6 @@ import type { CreateUserDto } from './dto/create-user.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entity/user.entity';
 import { CloudinaryService } from 'nestjs-cloudinary';
-import { BufferedFile } from '@/minio-client/model';
 
 @Injectable()
 export class UserService {

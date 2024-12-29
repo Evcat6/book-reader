@@ -19,6 +19,7 @@
     "@mdi/font": "^7.4.47",
     "@vee-validate/yup": "^4.12.6",
     "pinia": "^2.1.7",
+    "socket.io-client": "^4.8.1",
     "vee-validate": "^4.12.6",
     "vite-tsconfig-paths": "^4.2.2",
     "vue": "^3.3.11",

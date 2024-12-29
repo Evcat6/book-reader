@@ -11,6 +11,7 @@ import { NotificationService } from './notification/notification.service';
 import { StorageService } from './storage/storage.service';
 import { UserService } from './user-api/user-api.service';
 import { GenresApiService } from './genres-api/genres-api.service';
+import { SocketService } from './socket/socket.service';
 
 const configService = new ConfigService(import.meta.env as EnvironmentConfig);
 
@@ -18,7 +19,7 @@ const notificationService = new NotificationService(notify);
 
 const storageService = new StorageService(window.localStorage);
 
-const httpService = new HttpService(storageService, configService.getApiUrl());
+const httpService = new HttpService(storageService, configService.getApiEndpoint());
 
 const authApiService = new AuthApiService(httpService, API_BASE_ENDPOINT.AUTH);
 
@@ -27,6 +28,8 @@ const userApiService = new UserService(httpService, API_BASE_ENDPOINT.USERS);
 const booksApiService = new BooksApiService(httpService, API_BASE_ENDPOINT.BOOKS);
 
 const genresApiService = new GenresApiService(httpService, API_BASE_ENDPOINT.GENRES);
+
+const socketService = new SocketService(storageService, configService.getApiUrl());
 
 export {
   authApiService,
@@ -37,4 +40,5 @@ export {
   storageService,
   userApiService,
   genresApiService,
+  socketService
 };

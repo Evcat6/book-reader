@@ -14,6 +14,7 @@ import {
 import { BookEntity } from '@/book/entity/book.entity';
 
 import type { CreateUserDto } from '../dto/create-user.dto';
+import { NotificationEntity } from '@/notification/entity/notification.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -46,6 +47,10 @@ export class UserEntity {
   @ApiHideProperty()
   @OneToMany(() => BookEntity, (book) => book.user, { onDelete: "CASCADE" })
   public books: BookEntity[];
+
+  @ApiHideProperty()
+  @OneToMany(() => NotificationEntity, (book) => book.user, { onDelete: "CASCADE" })
+  public notifications: NotificationEntity[];
 
   @ApiHideProperty()
   @ManyToMany(() => BookEntity)

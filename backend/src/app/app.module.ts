@@ -22,6 +22,7 @@ import { AppLogger } from '@/common/service';
 import { configModuleValidationSchema } from '@/common/validation-schema/config-module.validation';
 import { UserModule } from '@/user/user.module';
 import { GenreModule } from '@/genre/genre.module';
+import { AppGatewayModule } from '@/gateway/app.gateway.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { GenreModule } from '@/genre/genre.module';
     AuthModule,
     BookModule,
     GenreModule,
+    AppGatewayModule,
   ],
   providers: [
     {

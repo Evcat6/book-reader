@@ -32,7 +32,7 @@ export class UserController {
   @ApiBearerAuth('JWT-auth')
   @UseInterceptors(FileInterceptor('file'))
   public async updateMe(
-    @User('sub') id: string,
+    @User('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile(
       new ParseFilePipe({
@@ -49,13 +49,13 @@ export class UserController {
 
   @Delete('me')
   @ApiBearerAuth('JWT-auth')
-  public async deleteMe(@User('sub') id: string): Promise<boolean> {
+  public async deleteMe(@User('id') id: string): Promise<boolean> {
     return await this.usersService.delete(id);
   }
 
   @Get('me')
   @ApiBearerAuth('JWT-auth')
-  public async loadUser(@User('sub') id: string): Promise<UserEntity> {
+  public async loadUser(@User('id') id: string): Promise<UserEntity> {
     return await this.usersService.findById(id);
   }
 }

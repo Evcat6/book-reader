@@ -57,13 +57,13 @@ export class AuthController {
   }
 
   @Post('new-verification-link')
-  public async createVerificationToken(@User() user): Promise<void> {
-    return await this.authService.createNewVerificationLink(user.id);
+  public async createVerificationToken(@User('id') userId: string): Promise<void> {
+    return await this.authService.createNewVerificationLink(userId);
   }
 
   @Post('logout')
-  public async logout(@User() user): Promise<void> {
-    await this.authService.logout(user.id);
+  public async logout(@User('id') userId: string): Promise<void> {
+    await this.authService.logout(userId);
   }
 
   @Public()

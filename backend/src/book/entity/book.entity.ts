@@ -82,7 +82,6 @@ export class BookEntity {
   @ApiHideProperty()
   @ManyToMany(() => GenreEntity, (genre) => genre.books)
   @JoinTable({ name: 'book_genres' })
-  // @Exclude()
   public genres: GenreEntity[];
 
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'views' })
