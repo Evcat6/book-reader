@@ -10,6 +10,10 @@ class ConfigService {
   public getApiUrl(): string {
     return this.environment.VITE_APP_PROXY_SERVER_URL;
   }
+
+  public getWsApiUrl(): string {
+    return this.environment.VITE_WS_API_URL;
+  }
 }
 
 export { ConfigService };

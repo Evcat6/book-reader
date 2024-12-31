@@ -23,6 +23,7 @@ import { BookEntity } from './entity/book.entity';
 import { GenreEntity } from '@/genre/entity/genre.entity';
 import { Cache } from '@nestjs/cache-manager';
 import { RedisKeyPrefix } from '@/common/enum';
+import { NotificationService } from '@/notification/notification.service';
 
 @Injectable()
 export class BookService {
@@ -37,6 +38,7 @@ export class BookService {
     private readonly genreRepository: Repository<GenreEntity>,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly notificationService: NotificationService
   ) { }
 
   public async create(

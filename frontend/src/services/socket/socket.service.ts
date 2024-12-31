@@ -7,17 +7,16 @@ class SocketService {
     private instance: Socket;
 
     constructor(private storage: StorageService, private url: string) {
-        console.log(this.storage.get(StorageKey.TOKEN));
         this.instance = io(this.url, {
             autoConnect: false,
-            extraHeaders: {
-                authorization: `Bearer ${this.storage.get(StorageKey.TOKEN)}`
-            }
+            auth: {
+                token: `Bearer ${this.storage.get(StorageKey.TOKEN)}`
+            },
+            transports: ['websocket', 'polling']
         });
     }
 
     public getInstance(): Socket {
-        console.log(this.instance);
         if(this.instance.connected === false) {
             this.instance.connect();
         }

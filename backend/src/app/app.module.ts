@@ -23,6 +23,7 @@ import { configModuleValidationSchema } from '@/common/validation-schema/config-
 import { UserModule } from '@/user/user.module';
 import { GenreModule } from '@/genre/genre.module';
 import { AppGatewayModule } from '@/gateway/app.gateway.module';
+import { NotificationModule } from '@/notification/notification.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { AppGatewayModule } from '@/gateway/app.gateway.module';
     BookModule,
     GenreModule,
     AppGatewayModule,
+    NotificationModule,
   ],
   providers: [
     {

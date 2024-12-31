@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { DataStatus } from '@/common/enums';
 import type { HttpError } from '@/common/exceptions/http-error.exception';
 
-import { booksApiService, notificationService } from '../services';
+import { booksApiService, toastNotificationService } from '../services';
 
 type State = {
   dataStatus: DataStatus;
@@ -21,10 +21,10 @@ export const useUploadBookStore = defineStore('upload-book', {
         this.dataStatus = DataStatus.PENDING;
         await booksApiService.create(payload);
         this.dataStatus = DataStatus.FULFILLED;
-        notificationService.success('Book uploaded successfully');
+        toastNotificationService.success('Book uploaded successfully');
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       } finally {
         this.dataStatus = DataStatus.IDLE;
       }

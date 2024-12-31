@@ -1,6 +1,6 @@
 import type { notify } from '@kyvg/vue3-notification';
 
-class NotificationService {
+class ToastNotificationService {
   public constructor(private notification: typeof notify) {}
 
   public info(text: string): void {
@@ -25,4 +25,4 @@ class NotificationService {
   }
 }
 
-export { NotificationService };
+export { ToastNotificationService };

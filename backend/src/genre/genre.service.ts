@@ -14,7 +14,7 @@ export class GenreService {
     return await this.genreRepository.find();
   }
 
-  public async getById(genreId): Promise<GenreEntity> {
+  public async getById(genreId: string): Promise<GenreEntity> {
     const genre = await this.genreRepository.findOneBy({ id: genreId });
     if(!genre) {
       throw new NotFoundException();

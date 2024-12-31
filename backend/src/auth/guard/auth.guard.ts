@@ -31,9 +31,9 @@ export class AuthGuard implements CanActivate {
     }
 
     // Determine if the request is HTTP or WebSocket
-    if (context.getType<'http'>() === 'http') {
+    if (context.getType() === 'http') {
       return this.handleHttpRequest(context);
-    } else if (context.getType<'ws'>() === 'ws') {
+    } else if (context.getType() === 'ws') {
       return this.handleWsRequest(context);
     }
 
@@ -73,7 +73,7 @@ export class AuthGuard implements CanActivate {
         secret: this.configService.get('JWT_SECRET'),
       });
 
-      client.user = { email: payload.email, id: payload.sub };; // Attach the user to the WebSocket client
+      client.user = { email: payload.email, id: payload.sub }; // Attach the user to the WebSocket client
     } catch {
       throw new WsException('Invalid token');
     }
@@ -88,7 +88,7 @@ export class AuthGuard implements CanActivate {
 
   private extractTokenFromWsClient(client: any): string | undefined {
     // Typically, WebSocket tokens are passed via headers or query params.
-    const authHeader = client.handshake?.headers?.authorization;
+    const authHeader = client.handshake?.auth?.token;
     if (authHeader) {
       const [type, token] = authHeader.split(' ');
       return type === 'Bearer' ? token : undefined;

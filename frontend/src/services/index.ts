@@ -7,7 +7,7 @@ import { AuthApiService } from './auth-api/auth-api.service';
 import { BooksApiService } from './books-api/books-api.service';
 import { ConfigService } from './config/config.service';
 import { HttpService } from './http/http.service';
-import { NotificationService } from './notification/notification.service';
+import { ToastNotificationService } from './toast-notifications/toast-notifications.service';
 import { StorageService } from './storage/storage.service';
 import { UserService } from './user-api/user-api.service';
 import { GenresApiService } from './genres-api/genres-api.service';
@@ -15,7 +15,7 @@ import { SocketService } from './socket/socket.service';
 
 const configService = new ConfigService(import.meta.env as EnvironmentConfig);
 
-const notificationService = new NotificationService(notify);
+const toastNotificationService = new ToastNotificationService(notify);
 
 const storageService = new StorageService(window.localStorage);
 
@@ -29,14 +29,14 @@ const booksApiService = new BooksApiService(httpService, API_BASE_ENDPOINT.BOOKS
 
 const genresApiService = new GenresApiService(httpService, API_BASE_ENDPOINT.GENRES);
 
-const socketService = new SocketService(storageService, configService.getApiUrl());
+const socketService = new SocketService(storageService, configService.getWsApiUrl());
 
 export {
   authApiService,
   booksApiService,
   configService,
   httpService,
-  notificationService,
+  toastNotificationService,
   storageService,
   userApiService,
   genresApiService,

@@ -4,7 +4,7 @@ import type { LoadUserResponseDto } from '@/common/dto';
 import { DataStatus, StorageKey } from '@/common/enums';
 import type { HttpError } from '@/common/exceptions';
 
-import { notificationService, storageService, userApiService } from '../services';
+import { toastNotificationService, storageService, userApiService } from '../services';
 
 type State = {
   user: Omit<LoadUserResponseDto, 'id'> & { id: string | null };
@@ -38,7 +38,7 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
         storageService.drop(StorageKey.TOKEN);
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       }
     },
 
@@ -47,10 +47,10 @@ export const useUserStore = defineStore('user', {
         this.dataStatus = DataStatus.PENDING;
         await userApiService.updateAvatar(payload);
         this.dataStatus = DataStatus.FULFILLED;
-        notificationService.success('Profile updated successfully');
+        toastNotificationService.success('Profile updated successfully');
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       }
     },
 
@@ -59,7 +59,7 @@ export const useUserStore = defineStore('user', {
         await userApiService.deleteMe();
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       }
     }
   },

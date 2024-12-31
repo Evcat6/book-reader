@@ -5,7 +5,7 @@ import { DataStatus } from '@/common/enums';
 import { StorageKey } from '@/common/enums/storage-key.enum';
 import type { HttpError } from '@/common/exceptions/http-error.exception';
 
-import { authApiService, notificationService , storageService } from '../services';
+import { authApiService, toastNotificationService , storageService } from '../services';
 
 type State = {
   dataStatus: DataStatus;
@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
         storageService.set(StorageKey.TOKEN, accessToken);
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       }
     },
     async login(payload: LoginUserRequestDto) {
@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
         storageService.set(StorageKey.TOKEN, accessToken);
       } catch (error) {
         this.dataStatus = DataStatus.REJECTED;
-        notificationService.error((error as HttpError).message);
+        toastNotificationService.error((error as HttpError).message);
       }
     },
   },

@@ -14,8 +14,16 @@ export class NotificationEntity {
     @CreateDateColumn({ type: 'timestamp' })
     public createdAt: Date;
 
+    @Column({ type: 'boolean', default: false })
+    public isViewed: boolean;
+
     @ApiHideProperty()
     @ManyToOne(() => UserEntity, (user) => user.books)
     @Exclude()
     public user: UserEntity;
+
+    constructor(message: string, user: UserEntity) {
+        this.message = message;
+        this.user = user;
+    }
 }
