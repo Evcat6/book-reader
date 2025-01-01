@@ -1,19 +1,14 @@
 <template>
-  <v-container
-    v-if="booksStore.books.length > 0"
-  >
-    <v-container
-      v-if="isNotPopularTab"
-      class="d-flex width-50"
-    >
+  <v-container>
+    <v-container v-if="isNotPopularTab" class="d-flex width-50 align-center">
       <v-card-text>
         <v-text-field
           v-model="searchByForm.searchQuery"
           :loading="booksStore.dataStatus === DataStatus.PENDING"
           append-inner-icon="mdi-magnify"
           density="compact"
-          label="Search templates"
-          variant="solo"
+          label="Search Books"
+          variant="solo-filled"
           hide-details
           single-line
           @click:append-inner="onSearch"
@@ -25,25 +20,16 @@
           item-title="title"
           density="comfortable"
           item-value="value"
+          hide-details
           :items="orderByValues"
           label="Order By"
         />
       </v-card-text>
     </v-container>
     <v-row>
-      <v-col
-        v-for="(book, index) in booksStore.books"
-        :key="index"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-      >
+      <v-col v-for="(book, index) in booksStore.books" :key="index" cols="12" sm="6" md="4" lg="3">
         <v-card @click="router.replace(`/book/${book.id}`)">
-          <v-img
-            :src="book.previewLink"
-            height="200"
-          />
+          <v-img :src="book.previewLink" height="200" />
 
           <v-card-title class="text-h6">
             {{ book.name }}
@@ -56,26 +42,17 @@
       </v-col>
     </v-row>
     <v-pagination
+      class="pt-4"
       v-if="isNotPopularTab"
       v-model="searchByForm.currentPage"
       :length="booksStore.pageCount"
     />
   </v-container>
-  <v-sheet
-    v-else
-    class="d-flex w-100 h-screen align-center justify-center"
-  >
-    <v-progress-circular
-      color="primary"
-      indeterminate
-      size="82"
-    />
-  </v-sheet>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, watch } from 'vue';
-import { useRoute,useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { BooksTabsValue, DataStatus } from '@/common/enums';
 import { OrderBy } from '@/common/enums/order-by.enum';
@@ -108,21 +85,22 @@ const onSearch = (): void => {
   });
 };
 
-onMounted(async () => {
-  if(route.name === 'books') {
+onMounted(() => {
+  if (route.name === 'books') {
     const tabsValuesArr: string[] = [BooksTabsValue.ALL, BooksTabsValue.MY, BooksTabsValue.POPULAR];
-    if(!tabsValuesArr.includes(route.path.substring(6))) {
+    if (!tabsValuesArr.includes(route.path.substring(6))) {
       router.push(`${BooksTabsValue.ALL}`);
-      void booksStore.loadMany({ type: BooksTabsValue.ALL });
+      booksStore.loadMany({ type: BooksTabsValue.ALL });
     }
   } else {
-    void booksStore.loadMany({ type: route.params.type as BooksTabsValue });
+    booksStore.loadMany({ type: route.params.type as BooksTabsValue });
   }
 });
 
 watch(
   () => [searchByForm.orderBy, searchByForm.currentPage],
-  () => {
+  (d) => {
+    console.log(d);
     void booksStore.loadMany({
       type: route.params.type as BooksTabsValue,
       searchQuery: searchByForm.searchQuery,

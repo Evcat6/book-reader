@@ -103,7 +103,6 @@ export class BookService {
       )
       .orderBy('books.createdAt', pageOptionsDto.order)
       .where(whereOptions)
-      .cache(QUERY_VIEWS_CACHE)
       .skip(pageOptionsDto.skip)
       .take(pageOptionsDto.take);
     /* eslint-enable sonarjs/no-duplicate-string */
