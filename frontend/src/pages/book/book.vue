@@ -1,14 +1,14 @@
 <template>
-  <div v-if="bookStore.book && bookStore.dataStatus === DataStatus.FULFILLED" class="d-flex align-center">
+  <div v-if="bookStore.book && bookStore.dataStatus === DataStatus.FULFILLED" class="d-flex px-16 gc-10">
     <img :src="bookStore.book.previewLink" alt="Book Cover" style="max-width: 600px; max-height: 600px" />
-    <div>
-      <h2>Title: {{ bookStore.book.name }}</h2>
-      <p>Uploaded By: {{ bookStore.book.uploadedBy }}</p>
+    <div class="d-flex flex-column gr-1" >
+      <h1>Title: {{ bookStore.book.name }}</h1>
+      <p><span class="font-weight-bold">Uploaded By:</span> {{ bookStore.book.uploadedBy }}</p>
       <p>
-        Publication Date:
+        <span class="font-weight-bold">Publication Date:</span>
         {{ new Date(bookStore.book.createdAt as string).toLocaleDateString() }}
       </p>
-      <p v-if="bookStore.book.isPrivate">This book is private</p>
+      <p v-if="bookStore.book.isPrivate" class="text-primary font-weight-bold">This book is private</p>
       <div class="d-flex justify-start">
         <p><v-icon icon="mdi-eye" /> {{ bookStore.book.views }}</p>
         <p>
@@ -19,10 +19,10 @@
           />
           {{ bookStore.book.addedToFavorites }}
         </p>
-        <p>{{ bookStore.book.genres.map((book) => book.name).join(', ') }}</p>
       </div>
-      <p>Size: {{ `${(bookStore.book.size / 1024 / 1024).toFixed(2)} MB` }}</p>
-      <v-btn :href="bookStore.book.accessLink"> Download Book </v-btn>
+      <p>{{ bookStore.book.genres.map((book) => book.name).join(', ') }}</p>
+      <p><span class="font-weight-bold">Size:</span> {{ `${(bookStore.book.size / 1024 / 1024).toFixed(2)} MB` }}</p>
+      <v-btn class="mt-6" color="primary" :href="bookStore.book.accessLink"> Download Book </v-btn>
     </div>
   </div>
   <v-sheet v-else class="d-flex w-100 align-center justify-center" style="height: 100vh">

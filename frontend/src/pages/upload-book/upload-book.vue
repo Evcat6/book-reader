@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex align-center justify-center h-screen w-100">
+  <div class="d-flex align-center justify-center w-100" style="height: calc(100vh - 80px);">
     <v-sheet v-if="!fileState" width="200">
-      <v-btn type="file" color="primary" block class="mt-2" @click="selectFile">
+      <v-btn type="file" color="primary" block @click="selectFile">
         <input ref="fileInput" class="d-none" type="file" @change="handleFileChange" />
         Upload Book
       </v-btn>
