@@ -10,7 +10,7 @@ const config = ({ mode }: ConfigEnv): ReturnType<typeof defineConfig> => {
   return defineConfig({
     plugins: [vue(), tsconfigPathsPlugin()],
     server: {
-      port: Number(VITE_APP_DEVELOPMENT_PORT) || 3000,
+      port: Number(VITE_APP_DEVELOPMENT_PORT) || 3001,
       proxy: {
         '/api': {
           target: VITE_APP_PROXY_SERVER_URL,

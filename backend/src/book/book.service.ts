@@ -128,15 +128,19 @@ export class BookService {
       )
       .leftJoinAndSelect('books.user', 'user')
       .leftJoinAndSelect('books.genres', 'genres')
+      .leftJoinAndSelect('books.userAddedToFavorites', 'user as users')
     if (!isViewed) {
       queryBuilder
         .leftJoinAndSelect('books.userViews', 'userViews', "user.id = :userId", { userId });
     }
     const book = await queryBuilder.getOne();
 
+    book.isAddedToFavoritesByUser = Boolean(book.userAddedToFavorites?.find((userEntity) => userEntity.id === userId));
+
     if (!book) {
       throw new NotFoundException();
     }
+
 
     if (book.isPrivate && book.user.id !== userId) {
       throw new BadRequestException();
@@ -203,18 +207,42 @@ export class BookService {
       .getMany();
   }
 
-  // public async addToFavorites(userId: string, bookId: string) {
-  //   const user = await this.userRepository.findOne({
-  //     where: { id: userId },
-  //     relations: ['bookSaves'],
-  //   });
+  /**
+   * 
+   * @param userId string
+   * @param bookId string
+   * 
+   * @returns `Promise<boolean>` - true if added to favorites, false if removed 
+   */
+  public async addToFavorites(userId: string, bookId: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['bookSaves'],
+    });
 
-  //   if (!user) {
-  //     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //   }
+    const isBookAddedToFavorites = user.bookSaves.find((bookEntity) => bookEntity.id === bookId);
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
-  //   const book = await this.bookRepository.findOne({ where: {} });
-  // }
+    const book = await this.bookRepository.findOne({ where: { id: bookId } });
+
+    if(!book) {
+      throw new NotFoundException('Book not found');
+    }
+
+    let response = false;
+    if(isBookAddedToFavorites) {
+      user.bookSaves = user.bookSaves.filter(((bookEntity) => bookEntity.id !== bookId));
+    } else {
+      user.bookSaves.push(book);
+      response = true;
+    }
+
+    this.userRepository.save(user);
+    return response;
+  }
 
   private async extractFirstPageFromPdf(
     bufferedFile: BufferedFile

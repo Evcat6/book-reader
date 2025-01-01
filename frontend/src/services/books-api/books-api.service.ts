@@ -1,13 +1,15 @@
-import type { LoadBooksResponseDto } from '@/common/dto';
-import type { LoadBookResponseDto } from '@/common/dto/load-book-response.dto';
-import type { LoadPaginatedResponse } from '@/common/dto/load-paginated-response.dto';
-import { ContentType } from '@/common/enums/content-type.enum';
-import { HttpMethod } from '@/common/enums/http-method.enum';
+import type {
+  LoadBooksResponseDto,
+  LoadBookResponseDto,
+  LoadPaginatedResponse,
+  AddBookToFavoritesResponseDto
+} from '@/common/dto';
+import { ContentType, HttpMethod } from '@/common/enums';
 
 import type { HttpService } from '../http/http.service';
 
 class BooksApiService {
-  public constructor(private httpService: HttpService, private baseEndpoint: string) {}
+  public constructor(private httpService: HttpService, private baseEndpoint: string) { }
 
   public async create(payload: FormData): Promise<void> {
     await this.httpService.load(`${this.baseEndpoint}`, {
@@ -45,6 +47,14 @@ class BooksApiService {
       contentType: ContentType.APPLICATION_JSON,
     });
     return await response.json<LoadBookResponseDto>();
+  }
+
+  public async addToFavorites(id: string) {
+    const response = await this.httpService.load(`${this.baseEndpoint}/${id}`, {
+      method: HttpMethod.PATCH,
+      contentType: ContentType.APPLICATION_JSON,
+    });
+    return await response.json<AddBookToFavoritesResponseDto>();
   }
 }
 

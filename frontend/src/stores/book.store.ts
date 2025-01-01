@@ -24,6 +24,7 @@ const defaultState: State = {
     accessLink: '',
     size: Number.NaN,
     addedToFavorites: Number.NaN,
+    isAddedToFavoritesByUser: false,
     genres: []
   },
 };
@@ -37,5 +38,14 @@ export const useBookStore = defineStore('book', {
       this.dataStatus = DataStatus.FULFILLED;
       this.book = response;
     },
+    async addToFavorites() {
+      const { isInFavorites } = await booksApiService.addToFavorites(this.book.id);
+      this.book.isAddedToFavoritesByUser = isInFavorites;
+      if(isInFavorites) {
+        this.book.addedToFavorites++;
+      } else {
+        this.book.addedToFavorites--;
+      }
+    }
   },
 });

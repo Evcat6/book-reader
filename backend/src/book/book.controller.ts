@@ -7,6 +7,7 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  Patch,
   Post,
   Query,
   SerializeOptions,
@@ -102,7 +103,15 @@ export class BookController {
   public async deleteById(
     @User('sub') userId: string,
     @Param('id') bookId: string
-  ): Promise<boolean> {
-    return await this.bookService.removeById(userId, bookId);
+  ): Promise<{ removed: boolean; }> {
+    return { removed: await this.bookService.removeById(userId, bookId) };
+  }
+
+  @Patch(':id')
+  public async addToFavorites(
+    @User('sub') userId: string,
+    @Param('id') bookId: string
+  ): Promise<{ isInFavorites: boolean; }> {
+    return { isInFavorites: await this.bookService.addToFavorites(userId, bookId) };
   }
 }

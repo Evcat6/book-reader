@@ -7,5 +7,6 @@ export type LoadBookResponseDto = LoadBooksResponseDto & {
   size: number;
   uploadedBy: string;
   addedToFavorites: number;
+  isAddedToFavoritesByUser: boolean;
   genres: LoadGenresResponseDto[];
 };

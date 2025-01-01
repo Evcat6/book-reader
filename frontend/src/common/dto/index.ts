@@ -5,3 +5,5 @@ export type { LoadUserResponseDto } from './load-user-response.dto';
 export type { LoginUserRequestDto } from './login-user-request.dto';
 export type { RegisterUserRequestDto } from './register-user-request.dto';
 export type { LoadGenresResponseDto } from './load-genres-response.dto';
+export type { AddBookToFavoritesResponseDto } from './add-book-to-favorites-response.dto';
+export type { LoadPaginatedResponse } from './load-paginated-response.dto';
