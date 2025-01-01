@@ -3,7 +3,7 @@ enum AppRoute {
   NOT_FOUND = '/:catchAll(.*)',
   LOGIN = '/auth/login',
   REGISTER = '/auth/register',
-  UPLOAD_BOOK = '/books/upload',
+  UPLOAD_BOOK = '/book/upload',
   BOOKS_$TYPE = '/books/:type',
   BOOKS = '/books',
   BOOK_$ID = '/book/:id',

@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink, useRoute,useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 import { BooksTabsValue } from '@/common/enums';
 import { useUserStore } from '@/stores/user.store';
