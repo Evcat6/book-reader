@@ -108,8 +108,16 @@ const onSearch = (): void => {
   });
 };
 
-onMounted(() => {
-  void booksStore.loadMany({ type: route.params.type as BooksTabsValue });
+onMounted(async () => {
+  if(route.name === 'books') {
+    const tabsValuesArr: string[] = [BooksTabsValue.ALL, BooksTabsValue.MY, BooksTabsValue.POPULAR];
+    if(!tabsValuesArr.includes(route.path.substring(6))) {
+      router.push(`${BooksTabsValue.ALL}`);
+      void booksStore.loadMany({ type: BooksTabsValue.ALL });
+    }
+  } else {
+    void booksStore.loadMany({ type: route.params.type as BooksTabsValue });
+  }
 });
 
 watch(
