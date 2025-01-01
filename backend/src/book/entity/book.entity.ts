@@ -74,6 +74,7 @@ export class BookEntity {
 
   // Required to calculate amount of users who added book to favorites
   @ManyToMany(() => UserEntity, { onDelete: 'CASCADE' })
+  @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS] })
   @JoinTable({ name: 'books_added_to_favorites' })
   @ApiHideProperty()
   @Exclude()
@@ -82,7 +83,6 @@ export class BookEntity {
   @ApiHideProperty()
   @ManyToMany(() => GenreEntity, (genre) => genre.books)
   @JoinTable({ name: 'book_genres' })
-  // @Exclude()
   public genres: GenreEntity[];
 
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'views' })
@@ -90,6 +90,9 @@ export class BookEntity {
 
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'addedToFavorites' })
   public addedToFavorites: number;
+
+  @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS], name: 'isAddedToFavoritesByUser' })
+  public isAddedToFavoritesByUser: boolean;
 
   @Expose({ groups: [GROUP_BOOK], name: 'uploadedBy' })
   @ApiProperty({ type: 'string' })
