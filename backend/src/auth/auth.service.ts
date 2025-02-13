@@ -16,6 +16,7 @@ import { CreateUserDto } from '@/user/dto/create-user.dto';
 import { UserService } from '@/user/user.service';
 
 import { LoginUserRequestDto } from './dto/login-user-request.dto';
+import { JwtTokenPayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -55,7 +56,7 @@ export class AuthService {
     accessToken: string;
   }> {
     const userEntity = await this.validate(user.email, user.password);
-    const payload = { email: userEntity.email, sub: userEntity.id };
+    const payload: JwtTokenPayload = { email: userEntity.email, sub: userEntity.id };
     const accessToken = this.jwtService.sign(payload);
     await this.cacheManager.set(
       `${RedisKeyPrefix.USER_INFO}:${userEntity.id}`,

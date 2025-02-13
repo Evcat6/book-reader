@@ -1,6 +1,6 @@
 import type internal from 'node:stream';
 
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isBoolean } from 'class-validator';
 import type { UploadApiResponse } from 'cloudinary/types'; // Installed already with nestjs-cloudinary
@@ -23,7 +23,8 @@ import { BookEntity } from './entity/book.entity';
 import { GenreEntity } from '@/genre/entity/genre.entity';
 import { Cache } from '@nestjs/cache-manager';
 import { RedisKeyPrefix } from '@/common/enum';
-import { NotificationService } from '@/notification/notification.service';
+import { AppLogger } from '@/common/service';
+import { AppGateway } from '@/gateway/app.gateway';
 
 @Injectable()
 export class BookService {
@@ -38,16 +39,20 @@ export class BookService {
     private readonly genreRepository: Repository<GenreEntity>,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
-    private readonly notificationService: NotificationService
+    private readonly logger: AppLogger,
+    private readonly appGateway: AppGateway
   ) { }
 
   public async create(
     userId: string,
-    { name, file, isPrivate, genresIds  }: CreateBookRequestDto
+    { name, file, isPrivate, genresIds }: CreateBookRequestDto
   ): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
+    if(!user) {
+      throw new NotFoundException("User Not Found");
+    }
     const { fileName } = await this.minioClientService.upload(file, 'books');
     const previewImage = await this.extractFirstPageFromPdf(file);
 
@@ -66,10 +71,11 @@ export class BookService {
       genres
     );
     await this.bookRepository.save(newBook);
+    await this.appGateway.createAndEmitNotification(userId, "new book created");
   }
 
   public async getAllByUserId(userId: string): Promise<BookEntity[]> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: [''] });
     return user.books;
   }
 
@@ -221,7 +227,12 @@ export class BookService {
   private async extractFirstPageFromPdf(
     bufferedFile: BufferedFile
   ): Promise<Buffer> {
-    const [image] = await pdftobuffer(bufferedFile.buffer as Buffer, 0);
-    return image;
+    try {
+      const [image] = await pdftobuffer(bufferedFile.buffer as Buffer, 0);
+      return image;
+    } catch (error) {
+      this.logger.error(`Error extracting first page from file:(${bufferedFile.originalname}), error message: ${(error as Error).message}`);
+      throw new InternalServerErrorException('Error uploading file');
+    }
   }
 }

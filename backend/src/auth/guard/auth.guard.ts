@@ -9,6 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
 import { Request } from 'express';
+import { verify } from 'jsonwebtoken';
 
 import { IS_PUBLIC_KEY } from '@/common/decorator/public.decorator';
 
@@ -87,14 +88,10 @@ export class AuthGuard implements CanActivate {
   }
 
   private extractTokenFromWsClient(client: any): string | undefined {
-    // Typically, WebSocket tokens are passed via headers or query params.
-    const authHeader = client.handshake?.auth?.token;
-    if (authHeader) {
-      const [type, token] = authHeader.split(' ');
-      return type === 'Bearer' ? token : undefined;
+    const authToken = client.handshake?.auth?.token;
+    if (authToken) {
+      const token = authToken.split(' ')[1];
+      return token;
     }
-
-    // Optionally, check for a token in the query string
-    return client.handshake?.query?.token;
   }
 }

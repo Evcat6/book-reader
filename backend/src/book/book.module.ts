@@ -10,14 +10,18 @@ import { BookEntity } from './entity/book.entity';
 import { GenreEntity } from '@/genre/entity/genre.entity';
 import { NotificationService } from '@/notification/notification.service';
 import { NotificationEntity } from '@/notification/entity/notification.entity';
+import { UserModule } from '@/user/user.module';
+import { AppGateway } from '@/gateway/app.gateway';
+import { AppLogger } from '@/common/service';
 
 @Module({
   imports: [
+    UserModule,
     MinioClientModule,
     TypeOrmModule.forFeature([BookEntity, UserEntity, GenreEntity, NotificationEntity]),
   ],
   controllers: [BookController],
-  providers: [BookService, NotificationService],
+  providers: [BookService, NotificationService, AppGateway, AppLogger],
   exports: [BookService],
 })
 export class BookModule {}

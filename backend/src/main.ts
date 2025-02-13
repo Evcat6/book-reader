@@ -44,16 +44,16 @@ async function bootstrap(): Promise<void> {
 
   setupDocumentation(app);
 
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.KAFKA,
-  //   options: {
-  //     client: {
-  //       brokers: [process.env.KAFKA_HOST],
-  //     },
-  //   },
-  // });
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.KAFKA,
+    options: {
+      client: {
+        brokers: [process.env.KAFKA_HOST],
+      },
+    },
+  });
 
-  // await app.startAllMicroservices();
+  await app.startAllMicroservices();
 
   await app.listen(process.env.PORT);
 

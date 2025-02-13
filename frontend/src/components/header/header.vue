@@ -50,20 +50,30 @@
         <RouterLink :to="AppRoute.PROFILE" class="text-h6 text-decoration-none text-primary">
           {{ userStore.user.username }}
         </RouterLink>
-        <v-icon size="30" @click="isNotificationPopupOpen = !isNotificationPopupOpen" class="cursor-pointer" color="primary" icon="mdi-bell-circle-outline" />
+        <v-icon size="30" @click="onClickNotificationButton" class="cursor-pointer" color="primary" icon="mdi-bell-circle-outline" />
       </div>
     </div>
   </v-app-bar>
 </template>
 
 <script setup lang="ts">
-import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
-import { BooksTabsValue } from '@/common/enums';
-import { useUserStore } from '@/stores/user.store';
+import { BooksTabsValue } from "@/common/enums";
+import { useUserStore } from "@/stores/user.store";
 
-import { AppRoute } from '../../common/enums/app-route.enum';
+import { AppRoute } from "@/common/enums/app-route.enum";
 import { ref } from 'vue';
+import { useWebsocket } from "@/hooks";
+
+const websocket = useWebsocket();
+
+const onClickNotificationButton = async () => {
+  console.log(websocket.connected);
+  websocket.emit("load-notifications", { limit: 10 }, console.log);
+  websocket.emit("ping", console.log);
+  isNotificationPopupOpen.value = !isNotificationPopupOpen.value;
+}
 
 const notifications = [
   { title: 'Notification 1', message: 'This is message 1' },

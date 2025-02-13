@@ -8,5 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { Header } from '../components.ts';
+import { Header } from "../components.ts";
+import { useWebsocket } from "@/hooks";
+
+const websocket = useWebsocket();
+
+websocket.on("new-notification", console.log);
+
 </script>

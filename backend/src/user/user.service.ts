@@ -65,7 +65,7 @@ export class UserService {
     );
 
     if (userFromCache) {
-      return plainToInstance(UserEntity, userFromCache);
+      return plainToInstance(UserEntity, JSON.parse(userFromCache as string) as Record<string, unknown>);
     }
 
     const user = await this.findBy({ id });

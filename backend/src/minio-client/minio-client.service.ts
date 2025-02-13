@@ -1,7 +1,7 @@
 import * as crypto from 'node:crypto';
 import type internal from 'node:stream';
 
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { MinioClient, MinioService } from 'nestjs-minio-client';
 
 import { AppLogger } from '@/common/service';
@@ -13,7 +13,7 @@ export class MinioClientService {
   public constructor(
     private readonly minio: MinioService,
     private readonly logger: AppLogger
-  ) {}
+  ) { }
 
   public get client(): MinioClient {
     return this.minio.client;
@@ -33,10 +33,8 @@ export class MinioClientService {
         file.mimetype.includes('pdf')
       )
     ) {
-      throw new HttpException(
-        'File type not supported',
-        HttpStatus.BAD_REQUEST
-      );
+      this.logger.error(`file type(${file.mimetype}) is not supported`);
+      throw new BadRequestException('File type not supported');
     }
     const timestamp = Date.now().toString();
     const hashedFileName = crypto
@@ -52,8 +50,9 @@ export class MinioClientService {
 
     try {
       await this.client.putObject(bucketName, fileName, file.buffer);
-    } catch {
-      throw new HttpException('Error uploading file', HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      this.logger.error(`Error uploading file(${file.originalname}), error message: ${(error as Error).message}`);
+      throw new InternalServerErrorException('Error uploading file');
     }
 
     return {
@@ -62,14 +61,12 @@ export class MinioClientService {
     };
   }
 
-  public async delete(objetName: string, bucketName: string): Promise<void> {
+  public async delete(objectName: string, bucketName: string): Promise<void> {
     try {
-      await this.client.removeObject(bucketName, objetName);
-    } catch {
-      throw new HttpException(
-        'An error occured when deleting!',
-        HttpStatus.BAD_REQUEST
-      );
+      await this.client.removeObject(bucketName, objectName);
+    } catch (error) {
+      this.logger.error(`Error deleting object(${objectName}) from bucket(${bucketName}), error message: ${(error as Error).message}`)
+      throw new InternalServerErrorException('An error occured when deleting!');
     }
   }
 
@@ -79,11 +76,9 @@ export class MinioClientService {
   ): Promise<internal.Readable> {
     try {
       return await this.client.getObject(bucketName, objectName);
-    } catch {
-      throw new HttpException(
-        'An error occured when getting!',
-        HttpStatus.BAD_REQUEST
-      );
+    } catch (error) {
+      this.logger.error(`Error retrieving object(${objectName}) from bucket(${bucketName}), error message: ${(error as Error).message}`)
+      throw new InternalServerErrorException('An error occured when getting file');
     }
   }
 

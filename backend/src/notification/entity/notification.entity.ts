@@ -22,7 +22,8 @@ export class NotificationEntity {
     @Exclude()
     public user: UserEntity;
 
-    constructor(message: string, user: UserEntity) {
+    constructor(message: string, user?: UserEntity) {
+        if(!user) return;
         this.message = message;
         this.user = user;
     }
